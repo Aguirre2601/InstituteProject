@@ -1,0 +1,85 @@
+---------------------------------------------------------------------
+CREATE DATABASE instituto_db;
+USE instituto_db;
+
+CREATE TABLE localidad (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR (200)
+); 
+CREATE TABLE carrera (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR (200)
+);
+
+CREATE TABLE rol (
+    id VARCHAR(3) PRIMARY KEY,
+    descripcion VARCHAR (200)
+);
+
+CREATE TABLE  usuario (
+    id INT (11) AUTO_INCREMENT PRIMARY KEY,
+    dni INT (8) NOT NULL,
+    nombre VARCHAR(255) NOT NULL,
+    apellido VARCHAR(255) NOT NULL,
+    telefono VARCHAR(19) NULL, 
+    email VARCHAR(250) UNIQUE,
+    password VARCHAR(255) NOT NULL, 
+     usuario_name VARCHAR(20) UNIQUE NOT NULL, 
+    calle VARCHAR(100),
+    id_localidad INT (11),
+    FOREIGN KEY (id_localidad) REFERENCES localidad (id) 
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+    id_rol VARCHAR(3) NOT NULL, 
+    FOREIGN KEY (id_rol) REFERENCES rol (id) 
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+); 
+
+CREATE TABLE  usuario_carrera (
+    id_usuario INT (11) NOT NULL,
+    id_carrera INT(11) NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES  usuario (id)  
+    ON DELETE CASCADE,
+    FOREIGN KEY (id_carrera) REFERENCES carrera (id)  
+    ON DELETE CASCADE,
+
+    PRIMARY KEY (id_usuario, id_carrera)
+); 
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+CRUD Instituto
+
+Algunas modificaciones al CRUD:
+
+Logo web
+    • Cambiar mensaje del logo por “Registro alumnos Instituto 93”.
+      
+Nuevo alumno
+    • Agregar registro mail.
+    • Agregar registro carrera en un textbox o combobox.
+    • Agregar registro calle.
+    • Agregar registro localidad.
+
+Editar alumno
+    • Agregar botón volver a la izquierda.
+    • Ubicar botón actualizar a la derecha.
+
+Eliminar
+    • Cambiar mensaje de la ventana de alerta por “¿Quiere borrar registro de alumno?.
+
+Tabla alumnos
+    • Mostrar título “Listado de alumnos”.
+
+Diseño
+    • Agregar logo del Instituto 93.
+    • Cambiar los colores a los colores institucionales.
+    • Agregar foto representativa de cada sección.
+    • Agregar iconos a los botones o reemplazarlos por iconos.
+
+--------------------
+pa sumar puntos 
+login 
+Agregar el envio de email
+ponerle onda al diseño
