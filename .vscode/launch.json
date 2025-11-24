@@ -9,7 +9,7 @@
             "type": "php",
             "request": "launch",
             "port": 9003,
-            "webRoot": "C:\\wamp64\\www\\crud-instituto"
+            "webRoot": "C:\\wamp64\\www\\crud-instituto" //esta linea la cambie para poder usarlo con wampserve nada mas
         },
         {
             "name": "Launch currently open script",
