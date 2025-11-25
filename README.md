@@ -36,6 +36,47 @@ Agregar el envio de email
 ponerle onda al diseño
 
 
+## Para hacer su Dominio virtual
+c:\windows\system32\drivers\etc\host
+Abro el archivo host con bloc de notas o con visual Code con permisos de Admin y escribo:
+127.0.0.1 localhost
+127.0.0.1 Instituto93.com
+Guardo.
+Luego en la carpeta de Apache uno el nuevo server a una carpeta que tenga el ejecutable del programa.
+Configurar la virtualHost
+c:\wamp64\bin\apache\apachex.x.x\conf\extra\httpd-vhost.conf 
+Ahi pegar lo siguiente:
+# Virtual Hosts
+#
+<VirtualHost _default_:80>
+  ServerName localhost
+  ServerAlias localhost
+  DocumentRoot "${INSTALL_DIR}/www"
+  <Directory "${INSTALL_DIR}/www/">
+    Options +Indexes +Includes +FollowSymLinks +MultiViews
+    AllowOverride All
+    Require local
+  </Directory>
+</VirtualHost>
+
+<VirtualHost *:80>
+  ServerName Instituto93.com
+  ServerAlias Instituto93.com
+  DocumentRoot "C:\CRUD-INSTITUTO\public"
+  <Directory "C:\CRUD-INSTITUTO\public/">
+    Options +Indexes +Includes +FollowSymLinks +MultiViews
+    AllowOverride All
+    Require local
+  </Directory>
+</VirtualHost>
+
+Guardo.Listo.
+
+## Contraseñas
+alumno: alumno123
+profesor: profe123
+director: director123
+
 ## Name
 CRUD INSTITUTO
 

@@ -4,6 +4,6 @@ $conn = mysqli_connect (
 'localhost', // nombre servidor
 'root', // usuario
 '', // contraseña
-'instituto'); //nombre base de datos
+'instituto_db'); //nombre base de datos
 ?> 
 

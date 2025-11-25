@@ -22,6 +22,8 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
+CREATE DATABASE instituto_db;
+USE instituto_db;
 
 --
 -- Estructura de tabla para la tabla `carrera`

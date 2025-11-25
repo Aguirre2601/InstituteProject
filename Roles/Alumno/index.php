@@ -1,12 +1,12 @@
 <?php include("conexion.php");?>
-
+<?php include_once("Middleware.php"); 
+verificar_rol(['A']); ?>
 <?php include("includes/header.php");?>
 
 
-<div class="container p-4" style="background-color: #d9d9d9;">
+<div class="container p-4" >
     <div class="row">
         <div class="col-md-4">
-            <!--Buscar tarea-->
             <div class="card card-body" style="background-color: #1e73be ;" >
                 <div class="titulo">
                     <img src="imagen/buscar.png">
@@ -96,12 +96,10 @@
             <tbody>
 
             <?php
-                  
-                       
-                     if (isset($_POST['buscar-alumno'])){
+                    if (isset($_POST['buscar-alumno'])){
                         
                         $apellido = $_POST['apellido'];
-             
+
     
                         $query = "select * from alumnos where apellido like '%$apellido' ";
                         $resultado = mysqli_query($conn, $query);
