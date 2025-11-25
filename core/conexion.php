@@ -6,4 +6,4 @@ $conn = mysqli_connect (
 '', // contraseña
 'instituto_db'); //nombre base de datos
 ?> 
-
+<!--ESTTO ES LO INICIAL-->

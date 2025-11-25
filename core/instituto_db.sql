@@ -22,6 +22,7 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
+DROP DATABASE IF EXISTS instituto_db;
 CREATE DATABASE instituto_db;
 USE instituto_db;
 
@@ -114,6 +115,9 @@ CREATE TABLE IF NOT EXISTS `usuario` (
   `calle` varchar(100) DEFAULT NULL,
   `id_localidad` int DEFAULT NULL,
   `id_rol` varchar(3) NOT NULL,
+  `fecha_inicio` DATE NULL,
+  `fecha_finalizacion` DATE NULL,
+  `activo` BOOLEAN DEFAULT 1,
   PRIMARY KEY (`id`),
   UNIQUE KEY `usuario_name` (`usuario_name`),
   UNIQUE KEY `email` (`email`),
@@ -125,18 +129,18 @@ CREATE TABLE IF NOT EXISTS `usuario` (
 -- Volcado de datos para la tabla `usuario`
 --
 
-INSERT INTO `usuario` (`id`, `dni`, `nombre`, `apellido`, `telefono`, `email`, `password`, `usuario_name`, `calle`, `id_localidad`, `id_rol`) VALUES
-(1, 43999888, 'Mariela', 'Aguirre', '1130989898', 'marcoronelgege@gmail.com', 'alumno123', 'alumno123', 'calle  001', 1, 'A'),
-(2, 43999881, 'Marcos', 'Marquelo', '1130989891', 'alumno@correo.com', 'alumno123', 'alumnoA123', 'calle 222', 2, 'A'),
-(3, 43999882, 'Roma', 'Romama', '1230989891', 'alumnoB@correo.com', 'alumno123', 'alumnoB123', 'calle 333', 4, 'A'),
-(4, 43999882, 'Alegra', 'Alegra', '1130989822', 'alumnoC@correo.com', 'alumno123', 'alumnoC123', 'calle 444', 3, 'A'),
-(5, 20999888, 'ramiro', 'ramiro', '1130989333', 'profesorA@correo.com', 'profe123', 'profeA123', 'calle 555', 5, 'P'),
-(6, 20999828, 'lorena', 'lorena', '1130989223', 'profesorB@correo.com', 'profe123', 'profeB123', 'calle 666', 3, 'P'),
-(7, 20999820, 'Sofia', 'soez', '1130989233', 'profesorC@correo.com', 'profe123', 'profeC123', 'calle 777', 2, 'P'),
-(8, 20999855, 'lopez', 'lopez', '1130989255', 'profesorD@correo.com', 'profe123', 'profeD123', 'calle 888', 4, 'P'),
-(9, 20999222, 'paul', 'paula', '1130989222', 'profesorE@correo.com', 'profe123', 'profeE123', 'calle 999', 6, 'P'),
-(10, 20999555, 'federico', 'federico', '1130989101', 'profesorF@correo.com', 'profe123', 'profeF123', 'calle 101', 1, 'P'),
-(11, 25999555, 'Mara', 'Maez', '1130989112', 'director@correo.com', 'director123', 'director123', 'calle 111', 1, 'D');
+INSERT INTO `usuario` (`id`, `dni`, `nombre`, `apellido`, `telefono`, `email`, `password`, `usuario_name`, `calle`, `id_localidad`, `id_rol`,`fecha_inicio`) VALUES
+(1, 43999888, 'Mariela', 'Aguirre', '1130989898', 'marcoronelgege@gmail.com', '$2y$10$/piXPMU4cqF8bK4y6r/CFOMM6UMXz7f8DFmNdhT1bBzf6kveXOLmy', 'alumno123', 'calle  001', 1, 'A', '2020-01-01'),
+(2, 43999881, 'Marcos', 'Marquelo', '1130989891', 'alumno@correo.com', '$2y$10$MprR7r0bAQDslO.HmvvIUuQAV/GPq/5OrLGHiSNhjvxuAm7ycg9Pe', 'alumnoA123', 'calle 222', 2, 'A','2020-01-01'),
+(3, 43999882, 'Roma', 'Romama', '1230989891', 'alumnoB@correo.com', '$2y$10$DQD.Kt8bQZ.gurgXtGHCD.RvY4shnjxNMSlKCu2VsDYpOt.nNFCdq', 'alumnoB123', 'calle 333', 4, 'A','2020-01-01'),
+(4, 43999882, 'Alegra', 'Alegra', '1130989822', 'alumnoC@correo.com', '$2y$10$0Gk.1ygAT6PFENnvj4obhOLocYKSB7XIs9n2kqVPWpQpYu3rqWJVC', 'alumnoC123', 'calle 444', 3, 'A','2023-01-01'),
+(5, 20999888, 'ramiro', 'ramiro', '1130989333', 'profesorA@correo.com', '$2y$10$Z.xDBhQ4eI2V4Wejw0YDQenR2U5Yg.fWJIDq20662cm9kcoSWhkKC', 'profeA123', 'calle 555', 5, 'P','2023-01-01'),
+(6, 20999828, 'lorena', 'lorena', '1130989223', 'profesorB@correo.com', '$2y$10$8fG2LwT9ag9frUj1iT8TI./Jh2q.jzE0cf2JG9V4Ji3Mc.AgmV1Du', 'profeB123', 'calle 666', 3, 'P','2021-01-01'),
+(7, 20999820, 'Sofia', 'soez', '1130989233', 'profesorC@correo.com', '$2y$10$KB23T1YP.WPRf0w.1viVcuO74CZgl7tcuL8ItAZeTfO1xQRB6qbba', 'profeC123', 'calle 777', 2, 'P','2020-01-01'),
+(8, 20999855, 'lopez', 'lopez', '1130989255', 'profesorD@correo.com', '$2y$10$5UctRnK2G.LKp/lMp9.HT.VLRYCRzGE8xvt1h6JzygKBegrV6xAd.', 'profeD123', 'calle 888', 4, 'P','2022-01-01'),
+(9, 20999222, 'paul', 'paula', '1130989222', 'profesorE@correo.com', '$2y$10$9Q11qfadoIVA7CkXgJer2.XbrjtPMs6PqutCsqLdN1pOcCpIUu0X2', 'profeE123', 'calle 999', 6, 'P','2021-01-01'),
+(10, 20999555, 'federico', 'federico', '1130989101', 'profesorF@correo.com', '$2y$10$kaVQeqSn5SvQV.ULD4kMFeY4q2K9paPv/4IUGXfjB3eIkGjvDsT1q', 'profeF123', 'calle 101', 1, 'P','2018-01-01'),
+(11, 25999555, 'Mara', 'Maez', '1130989112', 'director@correo.com', '$2y$10$t6NSCrTDFhyOIvT7L/iuj.cTKUDTRmoY03dCeOkW8rRIiNxW8.U4G', 'director123', 'calle 111', 1, 'D','2010-01-01');
 
 -- --------------------------------------------------------
 
