@@ -71,11 +71,16 @@ Ahi pegar lo siguiente:
 </VirtualHost>
 
 Guardo.Listo.
+## Si en wamppserve no funciona su nuevo hsot Virtual
+Debe vaciar correctamente la caché de resolución de DNS. Con el siguiente comando por consola, ejecutando como Administrador: 
+
+ipconfig /flushdns
+
 
 ## Contraseñas
-alumno: alumno123
-profesor: profe123
-director: director123
+alumno123: alumno123
+profesor123: profe123
+director123: director123
 
 ## Name
 CRUD INSTITUTO

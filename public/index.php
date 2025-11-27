@@ -21,14 +21,14 @@ function autoloader($className) {
     }
     
     // Buscar en models/
-    $file = ROOT_PATH . 'app/models/' . $className . '.php';
+    $file = ROOT_PATH . 'app/Models/' . $className . '.php';
     if (file_exists($file)) {
         require_once $file;
         return;
     }
     
     // Buscar en controllers/
-    $file = ROOT_PATH . 'app/controllers/' . $className . '.php';
+    $file = ROOT_PATH . 'app/Controllers/' . $className . '.php';
     if (file_exists($file)) {
         require_once $file;
         return;
@@ -39,6 +39,6 @@ function autoloader($className) {
 spl_autoload_register('autoloader');
 
 
-// 4. Iniciar el Router
+// Iniciar el Router
 $router = new Router();
 $router->run();

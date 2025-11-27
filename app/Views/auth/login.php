@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Iniciar Sesión</h1>
-    
+    <!--authController busca y su metodo iniciar-->
     <form action="/auth/iniciar" method="POST">
         <div>
             <label for="email">Email o Usuario:</label>

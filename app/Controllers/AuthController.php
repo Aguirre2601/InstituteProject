@@ -8,7 +8,7 @@ class AuthController {
             case 'A': // Alumno
                 header("Location: /alumno/dashboard"); 
                 break;
-            case 'D': // Director
+            case 'D': // Director directorController y su metodo dashnoard()
                 header("Location: /director/dashboard");
                 break;
             case 'P': // Profesor
@@ -55,6 +55,7 @@ class AuthController {
                 // 7. Éxito: Crear la Sesión
                 $_SESSION['user_id'] = $usuario_data->id;
                 $_SESSION['nombre'] = $usuario_data->nombre;
+                $_SESSION['apellido'] = $usuario_data->apellido;
                 $_SESSION['rol'] = $usuario_data->id_rol; // Clave para la redirección
 
                 // 8. Redirigir al Dashboard correcto

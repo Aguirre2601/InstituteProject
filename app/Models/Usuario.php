@@ -40,20 +40,6 @@ class Usuario {
         return $stmt->fetch();
     }
 
-    //LISTAR TODOS (Para el Dashboard del Director/Admin)
-    public function listar() {
-        $query = "SELECT u.id, u.dni, u.nombre, u.apellido, u.telefono, u.email, u.usuario_name,u.calle, u.fecha_inicio
-                         r.descripcion as rol_nombre, l.descripcion as localidad_nombre
-                  FROM " . $this->table . " u
-                  LEFT JOIN rol r ON u.id_rol = r.id
-                  LEFT JOIN localidad l ON u.id_localidad = l.id
-                  WHERE u.activo = 1  
-                  ORDER BY u.apellido ASC";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt;
-    }
 
     // CREAR UN NUEVO USUARIO
     public function crear() {
@@ -100,12 +86,52 @@ class Usuario {
         return false;
     }
 
+
+/**
+ * Asigna una lista de carreras al usuario recién creado.
+ * Utiliza una transacción para asegurar la integridad de la asignación.
+ * @param int $id_usuario ID del usuario recién creado.
+ * @param array $carreras_ids IDs de las carreras seleccionadas.
+ * @return bool True si es exitoso, false si falló.
+ */
+public function asignarCarreras($id_usuario, array $carreras_ids) {
+    if (empty($carreras_ids)) {
+        return true; // No hay nada que asignar
+    }
+    
+    $this->conn->beginTransaction(); // Iniciar la transacción
+
+    try {
+        $query = "INSERT INTO usuario_carrera (id_usuario, id_carrera) VALUES (?, ?)";
+        $stmt = $this->conn->prepare($query);
+        
+        foreach ($carreras_ids as $carrera_id) {
+            $carrera_id_int = (int) $carrera_id; // Asegurar el tipo de dato
+            $stmt->bindParam(1, $id_usuario);
+            $stmt->bindParam(2, $carrera_id_int);
+            
+            if (!$stmt->execute()) {
+                $this->conn->rollBack();
+                return false;
+            }
+        }
+        
+        $this->conn->commit(); // Confirmar la transacción
+        return true;
+        
+    } catch (Exception $e) {
+        $this->conn->rollBack(); // Deshacer si hay un error
+        error_log("Error al asignar carreras: " . $e->getMessage()); // Para debug
+        return false;
+    }
+}
+
     // DAR DE BAJA (Borrado Lógico)
     public function darBaja() {
         // 1. Definir la query: Solo actualizamos el estado y la fecha de fin
         $query = "UPDATE " . $this->table . "
                   SET activo = :activo, 
-                      fecha_fin = :fecha_fin
+                      fecha_finalizacion = :fecha_fin
                   WHERE id = :id";
 
         $stmt = $this->conn->prepare($query);
@@ -128,12 +154,25 @@ class Usuario {
         return false;
     }
 
-    //BUSCAR POR EMAIL (Para el Login)
-    public function buscarPorEmail($email) {
-        $query = "SELECT * FROM " . $this->table . " WHERE email = :email LIMIT 0,1";
+    //BUSCAR POR EMAIL O usuario_name (Para el Login)
+    public function buscarPorEmail($email_o_user) {
+        
+        // Modificar la Query: Usamos el operador OR y parámetros posicionales (?)
+        $query = "SELECT u.*, u.id_rol, u.password, u.activo
+                  FROM " . $this->table . " u
+                  WHERE u.email = ? OR u.usuario_name = ?
+                  LIMIT 0,1";
+
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
+
+        // Vincular Parámetros: Bindeamos el valor ($email_o_user) dos veces.
+        // El primer valor va a la primera posición (?) (email)
+        $stmt->bindParam(1, $email_o_user);
+        
+        // El segundo valor va a la segunda posición (?) (usuario_name)
+        $stmt->bindParam(2, $email_o_user);
+        $stmt->execute(); 
+
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
     
@@ -144,5 +183,62 @@ class Usuario {
         $stmt->bindParam(':id_usuario', $this->id);
         $stmt->bindParam(':id_carrera', $id_carrera);
         return $stmt->execute();
+    }
+
+    // Consulta base privada para ser reutilizada en listarProfesores y listarAlumnos
+    private function getBaseQuery() {
+        // La consulta trae todos los campos necesarios (incluyendo los JOINs)
+        return "SELECT u.id, u.dni, u.nombre, u.apellido, u.telefono, u.email, u.calle, u.fecha_inicio, u.usuario_name, 
+                       r.descripcion as rol_nombre, l.descripcion as localidad_nombre, u.id_rol
+                FROM " . $this->table . " u
+                LEFT JOIN rol r ON u.id_rol = r.id
+                LEFT JOIN localidad l ON u.id_localidad = l.id
+                WHERE u.activo = 1 
+                AND u.id_rol = ? -- Filtro por rol (posicional)
+                ORDER BY u.apellido ASC";
+    }
+
+    /**
+     * Lista todos los usuarios activos con rol 'P' (Profesor).
+     */
+    public function listarProfesores() {
+        $rol = 'P';
+        $query = $this->getBaseQuery();
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $rol);
+        $stmt->execute();
+
+        return $stmt;
+    }
+
+    /**
+     * Lista todos los usuarios activos con rol 'A' (Alumno).
+     */
+    public function listarAlumnos() {
+        $rol = 'A';
+        $query = $this->getBaseQuery();
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $rol);
+        $stmt->execute();
+
+        return $stmt;
+    }
+    /**
+     * Lee un único registro de usuario por ID.
+     */
+    public function leerUno($id) {
+        $query = "SELECT u.*, r.descripcion as rol_nombre 
+                  FROM " . $this->table . " u
+                  LEFT JOIN rol r ON u.id_rol = r.id
+                  WHERE u.id = ? 
+                  LIMIT 0,1";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 }
