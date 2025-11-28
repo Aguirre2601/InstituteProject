@@ -238,30 +238,70 @@ class Usuario {
     /**
      * Lista todos los usuarios activos con rol 'P' (Profesor).
      */
-    public function listarProfesores() {
-        $rol = 'P';
-        $query = $this->getBaseQuery();
+    // En app/models/Usuario.php
 
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $rol);
-        $stmt->execute();
+public function listarProfesores() {
+    $query = "SELECT 
+                u.id, 
+                u.dni, 
+                u.nombre, 
+                u.apellido, 
+                u.calle,
+                u.telefono,
+                u.email, 
+                u.fecha_inicio,
+                l.descripcion as localidad_nombre, 
+                r.descripcion as rol_nombre,
+                -- Agregamos la columna 'carreras_nombre' usando GROUP_CONCAT
+                GROUP_CONCAT(c.descripcion SEPARATOR ', ') as carreras_nombre 
+              FROM " . $this->table . " u
+              INNER JOIN localidad l ON u.id_localidad = l.id
+              INNER JOIN rol r ON u.id_rol = r.id
+              -- LEFT JOIN para traer la información de las carreras
+              LEFT JOIN usuario_carrera uc ON u.id = uc.id_usuario
+              LEFT JOIN carrera c ON uc.id_carrera = c.id
+              WHERE u.id_rol = 'P' AND u.activo = 1
+              -- Agrupamos por usuario para que GROUP_CONCAT funcione correctamente
+              GROUP BY u.id 
+              ORDER BY u.apellido ASC";
 
-        return $stmt;
-    }
-
+    $stmt = $this->conn->prepare($query);
+    $stmt->execute();
+    return $stmt;
+}
     /**
      * Lista todos los usuarios activos con rol 'A' (Alumno).
      */
-    public function listarAlumnos() {
-        $rol = 'A';
-        $query = $this->getBaseQuery();
+    // En app/models/Usuario.php
 
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $rol);
-        $stmt->execute();
+public function listarAlumnos() {
+    $query = "SELECT 
+                u.id, 
+                u.dni, 
+                u.nombre, 
+                u.apellido, 
+                u.email, 
+                u.calle,
+                u.telefono,
+                l.descripcion as localidad_nombre, 
+                r.descripcion as rol_nombre,
+                -- Agregamos la columna 'carreras_nombre' usando GROUP_CONCAT
+                GROUP_CONCAT(c.descripcion SEPARATOR ', ') as carreras_nombre 
+              FROM " . $this->table . " u
+              INNER JOIN localidad l ON u.id_localidad = l.id
+              INNER JOIN rol r ON u.id_rol = r.id
+              -- LEFT JOIN para traer la información de las carreras
+              LEFT JOIN usuario_carrera uc ON u.id = uc.id_usuario
+              LEFT JOIN carrera c ON uc.id_carrera = c.id
+              WHERE u.id_rol = 'A' AND u.activo = 1
+              -- Agrupamos por usuario para que GROUP_CONCAT funcione correctamente
+              GROUP BY u.id 
+              ORDER BY u.apellido ASC";
 
-        return $stmt;
-    }
+    $stmt = $this->conn->prepare($query);
+    $stmt->execute();
+    return $stmt;
+}
     /**
      * Lee un único registro de usuario por ID.
      */

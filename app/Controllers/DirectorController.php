@@ -20,6 +20,7 @@ class DirectorController {
         // 1. Conexión y Modelo
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
+        $carreraModel = new Carrera($db);
         // a) Listar Profesores
         $stmt_profesores = $usuarioModel->listarProfesores(); 
         $profesores = $stmt_profesores->fetchAll(PDO::FETCH_OBJ); // <- Variable $profesores
@@ -28,6 +29,8 @@ class DirectorController {
         $stmt_alumnos = $usuarioModel->listarAlumnos(); 
         $alumnos = $stmt_alumnos->fetchAll(PDO::FETCH_OBJ); // <- Variable $alumnos
 
+        // 3. OBTENER CARRERAS (Para el filtro combobox)
+        $carreras_filtro = $carreraModel->obtenerTodas(); 
         // 3. Cargamos la vista principal del director
         // La vista dashboard.php ahora espera DOS variables: $profesores y $alumnos
         require_once ROOT_PATH . 'app/views/director/dashboard.php';
