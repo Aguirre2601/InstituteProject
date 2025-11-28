@@ -22,24 +22,6 @@ class Usuario {
     public function __construct($db) {
         $this->conn = $db;
     }
-// Devuelve todos los registros de la tabla
-    public function all() {
-        // Creamos la query hacia la tabla del modelo
-        $stmt = $this->pdo->query("SELECT * FROM {$this->table}");
-        // Ejecutamos la query que devuelve multiples registros
-        return $stmt->fetchAll();
-    }
-
-    // Devuelve un solo registro filtrado por id
-    public function find($id) {
-        // Creamos la query hacia la tabla del modelo filtrano por el id
-        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = ?");
-        // Ejecutamos la query y pasamos el parametro $id
-        $stmt->execute([$id]);
-        // Devolvemos el resultado de la consulta que tiene un solo registro
-        return $stmt->fetch();
-    }
-
 
     // CREAR UN NUEVO USUARIO
     public function crear() {
@@ -86,46 +68,61 @@ class Usuario {
         return false;
     }
 
+    public function editar(){
+        $query = "UPDATE " . $this->table . "
+                    SET 
+                    dni = :dni, 
+                    nombre = :nombre, 
+                    apellido = :apellido, 
+                    telefono = :telefono, 
+                    email = :email, 
+                    usuario_name = :usuario_name, 
+                    calle = :calle, 
+                    id_localidad = :id_localidad";
 
-/**
- * Asigna una lista de carreras al usuario recién creado.
- * Utiliza una transacción para asegurar la integridad de la asignación.
- * @param int $id_usuario ID del usuario recién creado.
- * @param array $carreras_ids IDs de las carreras seleccionadas.
- * @return bool True si es exitoso, false si falló.
- */
-public function asignarCarreras($id_usuario, array $carreras_ids) {
-    if (empty($carreras_ids)) {
-        return true; // No hay nada que asignar
-    }
-    
-    $this->conn->beginTransaction(); // Iniciar la transacción
-
-    try {
-        $query = "INSERT INTO usuario_carrera (id_usuario, id_carrera) VALUES (?, ?)";
-        $stmt = $this->conn->prepare($query);
-        
-        foreach ($carreras_ids as $carrera_id) {
-            $carrera_id_int = (int) $carrera_id; // Asegurar el tipo de dato
-            $stmt->bindParam(1, $id_usuario);
-            $stmt->bindParam(2, $carrera_id_int);
-            
-            if (!$stmt->execute()) {
-                $this->conn->rollBack();
-                return false;
-            }
+        // Lógica Condicional para la Contraseña: Solo agregar la columna si se proporciona una nueva.
+        if (!empty($this->password)) {
+            $query .= ", password = :password";
         }
-        
-        $this->conn->commit(); // Confirmar la transacción
-        return true;
-        
-    } catch (Exception $e) {
-        $this->conn->rollBack(); // Deshacer si hay un error
-        error_log("Error al asignar carreras: " . $e->getMessage()); // Para debug
+
+        // CLÁUSULA WHERE CRÍTICA: Asegura que solo se actualice el registro con el ID del objeto.
+        $query .= " WHERE id = :id"; 
+
+        $stmt = $this->conn->prepare($query);
+
+        //Limpieza de datos (igual que en tu código)
+        $this->nombre = htmlspecialchars(strip_tags($this->nombre));
+        $this->apellido = htmlspecialchars(strip_tags($this->apellido)); 
+        $this->email = htmlspecialchars(strip_tags($this->email));
+        $this->usuario_name = htmlspecialchars(strip_tags($this->usuario_name));
+        $this->calle = htmlspecialchars(strip_tags($this->calle));
+
+        // Vincular parámetros comunes
+        $stmt->bindParam(':dni', $this->dni);
+        $stmt->bindParam(':nombre', $this->nombre);
+        $stmt->bindParam(':apellido', $this->apellido);
+        $stmt->bindParam(':telefono', $this->telefono);
+        $stmt->bindParam(':email', $this->email);
+        $stmt->bindParam(':usuario_name', $this->usuario_name);
+        $stmt->bindParam(':calle', $this->calle);
+        $stmt->bindParam(':id_localidad', $this->id_localidad);
+
+        // Vincular parámetro ID (Cláusula WHERE)
+        $stmt->bindParam(':id', $this->id); // El ID debe estar en la propiedad $this->id
+
+        // Vincular Contraseña (Condicional)
+        if (!empty($this->password)) {
+            $password_hash = password_hash($this->password, PASSWORD_BCRYPT);
+            $stmt->bindParam(':password', $password_hash);
+        }
+
+        // Ejecutar y retornar resultado
+        if($stmt->execute()) {
+            return true;
+        }
+
         return false;
     }
-}
-
     // DAR DE BAJA (Borrado Lógico)
     public function darBaja() {
         // 1. Definir la query: Solo actualizamos el estado y la fecha de fin
@@ -176,14 +173,54 @@ public function asignarCarreras($id_usuario, array $carreras_ids) {
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
     
-    //INSCRIBIR EN CARRERA (Manejo de la tabla pivote usuario_carrera)
+
+/**
+ * Asigna una lista de carreras al usuario recién creado.
+ * Utiliza una transacción para asegurar la integridad de la asignación.
+ * @param int $id_usuario ID del usuario recién creado.
+ * @param array $carreras_ids IDs de las carreras seleccionadas.
+ * @return bool True si es exitoso, false si falló.
+ */
+    public function asignarCarreras($id_usuario, array $carreras_ids) {
+        if (empty($carreras_ids)) {
+            return true; // No hay nada que asignar
+        }
+
+        $this->conn->beginTransaction(); // Iniciar la transacción
+
+        try {
+            $query = "INSERT INTO usuario_carrera (id_usuario, id_carrera) VALUES (?, ?)";
+            $stmt = $this->conn->prepare($query);
+
+            foreach ($carreras_ids as $carrera_id) {
+                $carrera_id_int = (int) $carrera_id; // Asegurar el tipo de dato
+                $stmt->bindParam(1, $id_usuario);
+                $stmt->bindParam(2, $carrera_id_int);
+
+                if (!$stmt->execute()) {
+                    $this->conn->rollBack();
+                    return false;
+                }
+            }
+
+            $this->conn->commit(); // Confirmar la transacción
+            return true;
+
+        } catch (Exception $e) {
+            $this->conn->rollBack(); // Deshacer si hay un error
+            error_log("Error al asignar carreras: " . $e->getMessage()); // Para debug
+            return false;
+        }
+    }
+
+    /*//INSCRIBIR EN CARRERA (Manejo de la tabla pivote usuario_carrera)
     public function inscribirCarrera($id_carrera) {
         $query = "INSERT INTO usuario_carrera (id_usuario, id_carrera) VALUES (:id_usuario, :id_carrera)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id_usuario', $this->id);
         $stmt->bindParam(':id_carrera', $id_carrera);
         return $stmt->execute();
-    }
+    }*/
 
     // Consulta base privada para ser reutilizada en listarProfesores y listarAlumnos
     private function getBaseQuery() {
@@ -240,5 +277,103 @@ public function asignarCarreras($id_usuario, array $carreras_ids) {
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_OBJ);
+    }//
+
+    /**
+     * Obtiene las carreras asignadas a un usuario específico.
+     */
+    public function obtenerCarrerasPorUsuario($id_usuario) {
+        $query = "SELECT c.id, c.descripcion
+                  FROM usuario_carrera uc
+                  INNER JOIN carrera c ON uc.id_carrera = c.id
+                  WHERE uc.id_usuario = ?";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(1, $id_usuario);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+    /**
+     * Elimina las asignaciones de carrera anteriores e inserta las nuevas.
+     */
+    public function actualizarCarrerasProfesor($id_usuario, array $carreras_ids) {
+        // Si no hay carreras seleccionadas, solo debe eliminar las antiguas
+        if (empty($carreras_ids)) {
+            $query_delete = "DELETE FROM usuario_carrera WHERE id_usuario = ?";
+            $stmt_delete = $this->conn->prepare($query_delete);
+            $stmt_delete->bindParam(1, $id_usuario);
+            return $stmt_delete->execute();
+        }
+
+        $this->conn->beginTransaction(); // Iniciar la transacción
+
+        try {
+            // ELIMINAR asignaciones antiguas
+            $query_delete = "DELETE FROM usuario_carrera WHERE id_usuario = ?";
+            $stmt_delete = $this->conn->prepare($query_delete);
+            $stmt_delete->bindParam(1, $id_usuario);
+            if (!$stmt_delete->execute()) {
+                $this->conn->rollBack();
+                return false;
+            }
+
+            //INSERTAR nuevas asignaciones
+            $query_insert = "INSERT INTO usuario_carrera (id_usuario, id_carrera) VALUES (?, ?)";
+            $stmt_insert = $this->conn->prepare($query_insert);
+
+            foreach ($carreras_ids as $carrera_id) {
+                $carrera_id_int = (int) $carrera_id;
+                $stmt_insert->bindParam(1, $id_usuario);
+                $stmt_insert->bindParam(2, $carrera_id_int);
+
+                if (!$stmt_insert->execute()) {
+                    $this->conn->rollBack();
+                    return false;
+                }
+            }
+
+            $this->conn->commit(); // Confirmar la transacción
+            return true;
+
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            error_log("Error al actualizar carreras: " . $e->getMessage());
+            return false;
+        }
+    } 
+    
+    /**
+     * Lista Alumnos activos (rol='A') que están en CUALQUIERA de las carreras del profesor.
+     */
+    public function listarAlumnosPorCarreraDeProfesor($id_profesor) {
+        // Agregamos 'c.descripcion as carrera_nombre' al SELECT
+        // Agregamos 'INNER JOIN carrera c' para obtener el nombre
+        
+        $query = "SELECT u.id, u.dni, u.nombre, u.apellido, u.telefono, u.email, u.calle,
+                         r.descripcion as rol_nombre, 
+                         l.descripcion as localidad_nombre, 
+                         u.id_rol,
+                         c.descripcion as carrera_nombre -- <--- NUEVO CAMPO
+                  FROM " . $this->table . " u
+                  INNER JOIN usuario_carrera uc_alumno ON u.id = uc_alumno.id_usuario
+                  INNER JOIN carrera c ON uc_alumno.id_carrera = c.id -- <--- NUEVA RELACIÓN
+                  INNER JOIN localidad l ON u.id_localidad = l.id
+                  INNER JOIN rol r ON u.id_rol = r.id
+                  WHERE u.activo = 1 
+                  AND u.id_rol = 'A'
+                  AND uc_alumno.id_carrera IN (
+                      -- Subconsulta: Solo trae carreras que coinciden con las del profesor
+                      SELECT id_carrera FROM usuario_carrera 
+                      WHERE id_usuario = :id_profesor
+                  )
+                  -- Ordenamos primero por Carrera y luego por Apellido para que la grilla quede ordenada
+                  ORDER BY c.descripcion ASC, u.apellido ASC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id_profesor', $id_profesor);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+
 }
