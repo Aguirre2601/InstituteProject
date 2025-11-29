@@ -6,7 +6,7 @@ class AuthController {
         // La hemos movido del HomeController para centralizarla.
         switch($rol) {
             case 'A': // Alumno
-                header("Location: /alumno/dashboard"); 
+                header("Location: /alumno/vistaEditarPerfil"); 
                 break;
             case 'D': // Director directorController y su metodo dashnoard()
                 header("Location: /director/dashboard");
@@ -38,7 +38,6 @@ class AuthController {
         $password_ingresada = filter_input(INPUT_POST, 'password', FILTER_DEFAULT);
         
         // 4. Buscar usuario por email/usuario_name (Usando el método del modelo)
-        // Nota: Asumimos que buscarPorEmail ya puede buscar también por usuario_name
         $usuario_data = $usuarioModel->buscarPorEmail($email_o_user);
 
         if ($usuario_data) {
@@ -79,6 +78,11 @@ class AuthController {
         session_start();
         session_destroy();
         header("Location: /home/login");
+        exit();
+    }
+
+    public function crearUsuario() {
+        header("Location: /alumno/vistaCrearUsuarioAlumno");
         exit();
     }
 }

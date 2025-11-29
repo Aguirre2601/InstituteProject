@@ -126,7 +126,7 @@ class ProfesorController{
 
         if ($exito_perfil) {
             // 2. Actualizar la asignación de Carreras
-            if ($usuarioModel->actualizarCarrerasProfesor($id_profesor, $carreras_seleccionadas)) {
+            if ($usuarioModel->actualizarCarreras($id_profesor, $carreras_seleccionadas)) {
                  $mensaje = "Perfil y asignación de carreras actualizados con éxito.";
             } else {
                 $mensaje = "Perfil actualizado, pero **falló** la asignación de carreras.";

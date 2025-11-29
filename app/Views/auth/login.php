@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Iniciar Sesión</h1>
-    <!--authController busca y su metodo iniciar-->
+
     <form action="/auth/iniciar" method="POST">
         <div>
             <label for="email">Email o Usuario:</label>
@@ -16,8 +16,18 @@
             <label for="password">Contraseña:</label>
             <input type="password" id="password" name="password" required>
         </div>
+        
         <button type="submit">Ingresar</button>
     </form>
+    
+    <hr>
+    
+    <p>¿Aún no tienes cuenta? 
+        <a href="/alumno/vistaCrearUsuarioAlumno">
+            <button type="button">Crear Usuario</button>
+        </a>
+    </p>
+
 </body>
 <?php 
 if (isset($_SESSION['mensaje'])): 
