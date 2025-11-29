@@ -32,30 +32,26 @@ class ProfesorController{
     }
     
     // URL: /profesor/darDeBajaAlumno/5 (El ID viene en $id)
-    public function darDeBajaAlumno($id) {
-        if (!$this->isProfesor() || !is_numeric($id)) return;
+    public function darDeBajaAlumno($id_usuario, $id_carrera) {
+        if (empty($id_usuario) || empty($id_carrera)) {
+            $_SESSION['error'] = "Parámetros insuficientes para dar de baja.";
+            header('Location: /profesor/dashboard');
+            exit();
+        }
 
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
 
-        // 1. Buscamos el usuario para verificar que sea alumno
-        $usuario = $usuarioModel->leerUno($id); // Este método lo agregaremos al Modelo
-        
-        if ($usuario && $usuario->id_rol === 'A') {
-            // 2. Asignamos el ID al objeto del modelo para la baja
-            $usuarioModel->id = $id;
-            
-            if ($usuarioModel->darBaja()) {
-                $_SESSION['mensaje'] = "Alumno dado de baja lógicamente con éxito.";
-            } else {
-                $_SESSION['mensaje'] = "Error al dar de baja al alumno.";
-            }
+        // Llama al nuevo método del modelo
+        $exito = $usuarioModel->eliminarRelacionUsuarioCarrera((int)$id_usuario, (int)$id_carrera);
+
+        if ($exito) {
+            $_SESSION['mensaje'] = "El alumno (ID: $id_usuario) ha sido dado de baja de la carrera (ID: $id_carrera) exitosamente.";
         } else {
-            $_SESSION['mensaje'] = "Error: El usuario no existe o no es un Alumno.";
+            $_SESSION['error'] = "Error al dar de baja al alumno de la carrera. Verifique que la relación exista.";
         }
 
-        // Redireccionar al listado
-        header("Location: " . '/profesor/dashboard');
+        header('Location: /profesor/dashboard');
         exit();
     }
 
@@ -74,7 +70,7 @@ class ProfesorController{
         $profesor = $usuarioModel->leerUno($id_profesor); 
 
         // 2. Obtener la lista de TODAS las localidades
-        $localidades = $localidadModel->obtenerTodas()->fetchAll(PDO::FETCH_OBJ);
+        $localidades = $localidadModel->obtenerTodas();
 
         // 3. Obtener la lista de TODAS las carreras
         $carreras_totales = $carreraModel->obtenerTodas(); 

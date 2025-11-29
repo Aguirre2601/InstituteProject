@@ -388,32 +388,44 @@ public function listarAlumnos() {
     public function listarAlumnosPorCarreraDeProfesor($id_profesor) {
         // Agregamos 'c.descripcion as carrera_nombre' al SELECT
         // Agregamos 'INNER JOIN carrera c' para obtener el nombre
-        
         $query = "SELECT u.id, u.dni, u.nombre, u.apellido, u.telefono, u.email, u.calle,
-                         r.descripcion as rol_nombre, 
-                         l.descripcion as localidad_nombre, 
-                         u.id_rol,
-                         c.descripcion as carrera_nombre -- <--- NUEVO CAMPO
-                  FROM " . $this->table . " u
-                  INNER JOIN usuario_carrera uc_alumno ON u.id = uc_alumno.id_usuario
-                  INNER JOIN carrera c ON uc_alumno.id_carrera = c.id -- <--- NUEVA RELACIÓN
-                  INNER JOIN localidad l ON u.id_localidad = l.id
-                  INNER JOIN rol r ON u.id_rol = r.id
-                  WHERE u.activo = 1 
-                  AND u.id_rol = 'A'
-                  AND uc_alumno.id_carrera IN (
-                      -- Subconsulta: Solo trae carreras que coinciden con las del profesor
-                      SELECT id_carrera FROM usuario_carrera 
-                      WHERE id_usuario = :id_profesor
-                  )
-                  -- Ordenamos primero por Carrera y luego por Apellido para que la grilla quede ordenada
-                  ORDER BY c.descripcion ASC, u.apellido ASC";
+                     r.descripcion as rol_nombre, 
+                     l.descripcion as localidad_nombre, 
+                     u.id_rol,
+                     c.descripcion as carrera_nombre, 
+                     uc_alumno.id_carrera as id_carrera
+              FROM " . $this->table . " u
+              INNER JOIN usuario_carrera uc_alumno ON u.id = uc_alumno.id_usuario
+              INNER JOIN carrera c ON uc_alumno.id_carrera = c.id 
+              INNER JOIN localidad l ON u.id_localidad = l.id
+              INNER JOIN rol r ON u.id_rol = r.id
+              WHERE u.activo = 1 
+              AND u.id_rol = 'A'
+              AND uc_alumno.id_carrera IN (
+                  SELECT id_carrera FROM usuario_carrera 
+                  WHERE id_usuario = :id_profesor
+              )
+              ORDER BY c.descripcion ASC, u.apellido ASC";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id_profesor', $id_profesor);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+    /**
+ * Elimina la relación específica de un usuario con una carrera.
+ * Esto da de baja al alumno SÓLO de esa carrera.
+ */
+public function eliminarRelacionUsuarioCarrera($id_usuario, $id_carrera) {
+    $query = "DELETE FROM usuario_carrera 
+              WHERE id_usuario = :id_usuario AND id_carrera = :id_carrera";
+
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+    $stmt->bindParam(':id_carrera', $id_carrera, PDO::PARAM_INT);
+
+    return $stmt->execute();
+}
 
 
 }

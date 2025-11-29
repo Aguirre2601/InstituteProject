@@ -91,9 +91,10 @@
                 <td><?= $alumno->localidad_nombre ?></td>
                 <td style="font-weight:bold; color:#555;"><?= $alumno->carrera_nombre ?></td>
                 <td>
-                    <a href="/profesor/darDeBajaAlumno/<?= $alumno->id ?>" 
-                        onclick="return confirm('¿Confirma la baja?');">
-                        Dar de Baja
+                    
+                    <a href="/profesor/darDeBajaAlumno/<?= $alumno->id ?>/<?= $alumno->id_carrera ?>"
+                        onclick="return confirm('¿Está seguro de dar de baja al Alumno <?= $alumno->apellido ?> de la carrera <?= $alumno->carrera_nombre ?>?');">
+                        Dar de Baja de Carrera
                     </a>
                 </td>
             </tr>

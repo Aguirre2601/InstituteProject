@@ -161,4 +161,67 @@ class DirectorController {
         // (En un entorno de producción, esto SÍ debe funcionar)
         error_log("EMAIL SIMULADO ENVIADO a {$destinatario}: User={$usuario_name}, Pass={$password}");
     }
+
+    // URL: /director/vistaEditarPerfil (Muestra el formulario - MÉTODO GET)
+    public function vistaEditarPerfil() {
+        if (!$this->isDirector()) return;
+
+        $db = (new Database())->connect();
+        $usuarioModel = new Usuario($db);
+        $localidadModel = new Localidad($db); 
+
+        $id_director = $_SESSION['user_id'];
+
+        // 1. Obtener los datos actuales del perfil del profesor
+        $director = $usuarioModel->leerUno($id_director); 
+
+        // 2. Obtener la lista de TODAS las localidades
+        $localidades = $localidadModel->obtenerTodas();
+
+        if (!$director) {
+            $_SESSION['mensaje'] = "Error: No se encontró el perfil para editar.";
+            header("Location: /director/dashboard");
+            exit();
+        }
+
+        require_once ROOT_PATH . 'app/views/director/perfil_editar.php';
+    }
+
+    // URL: /director/actualizarPerfil (Procesa el formulario - MÉTODO POST)
+    public function actualizarPerfil() {
+        if (!$this->isDirector() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: /director/dashboard");
+            exit();
+        }
+
+        $db = (new Database())->connect();
+        $usuarioModel = new Usuario($db);
+
+        $id_director = $_SESSION['user_id'];
+        $usuarioModel->id = $id_director; 
+
+        // 1. Asignar datos personales al Modelo
+        $usuarioModel->dni = filter_input(INPUT_POST, 'dni', FILTER_SANITIZE_NUMBER_INT);
+        $usuarioModel->nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_SPECIAL_CHARS);
+        $usuarioModel->apellido = filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_SPECIAL_CHARS);
+        $usuarioModel->telefono = filter_input(INPUT_POST, 'telefono', FILTER_SANITIZE_SPECIAL_CHARS);
+        $usuarioModel->email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+        $usuarioModel->password = filter_input(INPUT_POST, 'password', FILTER_DEFAULT); 
+        $usuarioModel->usuario_name = filter_input(INPUT_POST, 'usuario_name', FILTER_SANITIZE_SPECIAL_CHARS);
+        $usuarioModel->calle = filter_input(INPUT_POST, 'calle', FILTER_SANITIZE_SPECIAL_CHARS);
+        $usuarioModel->id_localidad = filter_input(INPUT_POST, 'id_localidad', FILTER_SANITIZE_NUMBER_INT);
+
+        $mensaje = "Perfil actualizado con éxito.";
+        $exito_perfil = $usuarioModel->editar(); // Ejecuta el UPDATE
+
+        if ($exito_perfil) {
+                $mensaje = "Perfil actualizado con éxito.";
+            } else {
+                $mensaje = "Error al actualizar el perfil.";
+            }
+
+        $_SESSION['mensaje'] = $mensaje;
+        header("Location: " . '/director/dashboard');
+        exit();
+    }
 }

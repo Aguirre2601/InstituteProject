@@ -5,6 +5,7 @@
     <h1>Bienvenido Director/a, <?= ($_SESSION['nombre'] ?? '') . ' ' . ($_SESSION['apellido'] ?? '') ?></h1>
     <p>Desde aquí puede gestionar Profesores y ver Alumnos.</p>
 
+    <p><a href="/director/vistaEditarPerfil">Editar Perfil</a></p>
     <p><a href="/director/vistaCrearProfesor">➕ Crear Nuevo Profesor</a></p>
     <p><a href="/auth/logout">🚪 Cerrar Sesión</a></p>
 

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Perfil - Profesor</title>
+    <title>Editar Perfil - Director</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
@@ -54,9 +54,9 @@
     endif; 
     ?>
 
-    <p><a href="/profesor/dashboard">⬅️ Volver al Dashboard</a></p>
+    <p><a href="/director/dashboard">⬅️ Volver al Dashboard</a></p>
 
-    <form action="/profesor/actualizarPerfil" method="POST">
+    <form action="/director/actualizarPerfil" method="POST">
         
         <input type="hidden" name="id_usuario" value="<?= $usuario->id ?? '' ?>">
 
@@ -108,25 +108,6 @@
             <label for="calle">Calle y Número:</label>
             <input type="text" id="calle" name="calle" value="<?= $usuario->calle ?? '' ?>">
             
-        </fieldset>
-        
-        <fieldset>
-            <legend>Carreras a Asignar</legend>
-                <label>Seleccione las Carreras (Puede seleccionar varias):</label>
-                <div style="border: 1px solid #ccc; padding: 10px; height: 150px; overflow-y: scroll; background-color: #f9f9f9;">
-                    <?php 
-                    // La variable $carreras viene del DirectorController
-                    foreach ($carreras_totales as $carrera): 
-                    ?>
-                        <label style="display: block; font-weight: normal; margin-bottom: 5px;">
-                            <input type="checkbox" name="carreras[]" value="<?= $carrera->id ?>">
-                            <?= $carrera->descripcion ?>
-                        </label>
-                    <?php endforeach; ?>
-                    <?php if (empty($carreras_totales)): ?>
-                        <p>⚠️ No hay carreras registradas. No se podrá asignar el profesor.</p>
-                    <?php endif; ?>
-                </div>
         </fieldset>
 
         <fieldset>
