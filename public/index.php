@@ -1,43 +1,19 @@
 <?php
-//Iniciar la sesión (necesaria para el login, perfiles y mensajes)
-session_start();
+// public/index.php
 
-//Definir la zona horaria (configuración global)
-date_default_timezone_set('America/Argentina/Buenos_Aires');
-
-// Incluir el autocargador de clases (Autoloader)
-// Esto evita que tengas que hacer "require_once" para cada clase (Database, Usuario, Router, etc.)
-
-// Definimos la constante ROOT para que todas las rutas sean relativas a la raíz del proyecto
-define('ROOT_PATH', dirname(__DIR__) . '/');
-
-// Función Autoloader: Carga clases automáticamente desde 'core/' y 'app/'
-function autoloader($className) {
-    // Buscar en core/
-    $file = ROOT_PATH . 'core/' . $className . '.php';
-    if (file_exists($file)) {
-        require_once $file;
-        return;
-    }
-    
-    // Buscar en models/
-    $file = ROOT_PATH . 'app/Models/' . $className . '.php';
-    if (file_exists($file)) {
-        require_once $file;
-        return;
-    }
-    
-    // Buscar en controllers/
-    $file = ROOT_PATH . 'app/Controllers/' . $className . '.php';
-    if (file_exists($file)) {
-        require_once $file;
-        return;
-    }
+// Iniciar sesión (necesaria para el login, perfiles y mensajes)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// Registrar la función de autocarga
-spl_autoload_register('autoloader');
+// Definir la zona horaria
+date_default_timezone_set('America/Argentina/Buenos_Aires');
 
+// Definir constante ROOT_PATH
+define('ROOT_PATH', dirname(__DIR__) . '/');
+
+// Incluir el autocargador
+require_once ROOT_PATH . 'vendor/autoload.php';
 
 // Iniciar el Router
 $router = new Router();

@@ -1,20 +1,8 @@
 <?php
+// app/Controllers/ProfesorController.php
 class ProfesorController{
-    
-    // Helper: Centralizar la verificación de permisos
-    private function isProfesor() {
-        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'P') {
-            // Si no es Profesor, redirigimos al login o a donde corresponda
-            AuthController::redirectToDashboard(null); 
-            return false;
-        }
-        return true;
-    }
-
     // URL: /profesor/dashboard
     public function dashboard() {
-        if (!$this->isProfesor()) return;
-
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
         $id_profesor = $_SESSION['user_id'];
@@ -57,7 +45,6 @@ class ProfesorController{
 
     // URL: /profesor/vistaEditarPerfil (Muestra el formulario - MÉTODO GET)
     public function vistaEditarPerfil() {
-        if (!$this->isProfesor()) return;
 
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
@@ -92,11 +79,6 @@ class ProfesorController{
 
     // URL: /profesor/actualizarPerfil (Procesa el formulario - MÉTODO POST)
     public function actualizarPerfil() {
-        if (!$this->isProfesor() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: /profesor/dashboard");
-            exit();
-        }
-
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
 

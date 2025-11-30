@@ -1,7 +1,8 @@
 <?php
+// app/Controllers/AuthController.php
 class AuthController {
 
-    private static function redirectToDashboard($rol) {
+    public static function redirectToDashboard($rol) {
         // Mantenemos esta función de redirección aquí, ya que es lógica de autenticación.
         // La hemos movido del HomeController para centralizarla.
         switch($rol) {
@@ -12,7 +13,7 @@ class AuthController {
                 header("Location: /director/dashboard");
                 break;
             case 'P': // Profesor
-                header("Location: /profesor/dashboard");
+                header("Location:/profesor/dashboard");
                 break;
             default:
                 session_destroy();
@@ -39,7 +40,6 @@ class AuthController {
         
         // 4. Buscar usuario por email/usuario_name (Usando el método del modelo)
         $usuario_data = $usuarioModel->buscarPorEmail($email_o_user);
-
         if ($usuario_data) {
             // 5. Verificar la Contraseña Hasheada
             if (password_verify($password_ingresada, $usuario_data->password)) {
@@ -57,17 +57,20 @@ class AuthController {
                 $_SESSION['apellido'] = $usuario_data->apellido;
                 $_SESSION['rol'] = $usuario_data->id_rol; // Clave para la redirección
 
-                // 8. Redirigir al Dashboard correcto
-                $this->redirectToDashboard($usuario_data->id_rol);
+                //echo "Rol actual establecido: " . $_SESSION['rol']; exit();
+
+                // Redirigir al Dashboard correcto
+                $this->redirectToDashboard($usuario_data->id_rol); 
+
 
             } else {
-                // 9. Error de Contraseña
+                //Error de Contraseña
                 $_SESSION['mensaje'] = "Contraseña incorrecta.";
                 header("Location: /home/login");
             }
 
         } else {
-            // 10. Error: Usuario no encontrado
+            //Error: Usuario no encontrado
             $_SESSION['mensaje'] = "Usuario no encontrado.";
             header("Location: /home/login");
         }

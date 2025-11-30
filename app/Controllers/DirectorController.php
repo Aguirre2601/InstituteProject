@@ -1,22 +1,8 @@
 <?php
-// Asegúrate de que las clases Database y Usuario sean accesibles por el autoloader
-
+//app/Controllers/DirectorController.php
 class DirectorController {
-
-    // Helper: Centralizar la verificación de permisos
-    private function isDirector() {
-        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'D') {
-            // Si no es Director, redirigimos al login o a donde corresponda
-            AuthController::redirectToDashboard(null); 
-            return false;
-        }
-        return true;
-    }
-
     // URL: /director/dashboard
     public function dashboard() {
-        if (!$this->isDirector()) return;
-
         // 1. Conexión y Modelo
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
@@ -67,8 +53,6 @@ class DirectorController {
 
     // URL: /director/vistaCrearProfesor (GET para mostrar el formulario)
     public function vistaCrearProfesor() {
-        if (!$this->isDirector()) return;
-        
         $db = (new Database())->connect();
         // Necesitamos las localidades para el <select> del formulario
         $localidadModel = new Localidad($db);
@@ -164,8 +148,6 @@ class DirectorController {
 
     // URL: /director/vistaEditarPerfil (Muestra el formulario - MÉTODO GET)
     public function vistaEditarPerfil() {
-        if (!$this->isDirector()) return;
-
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
         $localidadModel = new Localidad($db); 

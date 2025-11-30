@@ -1,45 +1,129 @@
-<?php
+<?php 
+// core/Router.php
 class Router {
+    protected $routes = [];
+
+    public function add($url, $controller, $method, $middleware = null, $middlewareParam = null) {
+        // Normalizar la URL - siempre sin slash al inicio
+        $url = ltrim($url, '/');
+        $this->routes[$url] = [
+            'controller' => $controller,
+            'method' => $method,
+            'middleware' => $middleware,
+            'param' => $middlewareParam,
+        ];
+    }
+    
+    public function registerRoutes() {
+        // === RUTAS PÚBLICAS (sin middleware) ===
+        $this->add('', 'HomeController', 'index');
+        $this->add('home/login', 'HomeController', 'login');
+        $this->add('auth/iniciar', 'AuthController', 'iniciar');
+        $this->add('auth/logout', 'AuthController', 'logout');
+        $this->add('auth/crearUsuario', 'AuthController', 'crearUsuario');
+        $this->add('alumno/vistaCrearUsuarioAlumno', 'AlumnoController', 'vistaCrearUsuarioAlumno');
+        $this->add('alumno/crearUsuarioAlumno', 'AlumnoController', 'crearUsuarioAlumno');
+
+        // === RUTAS PROTEGIDAS POR ROL ===
+        
+        // Director
+        $this->add('director/dashboard', 'DirectorController', 'dashboard', 'CheckRoleMiddleware', 'D');
+        $this->add('director/darDeBajaProfesor/:id', 'DirectorController', 'darDeBajaProfesor', 'CheckRoleMiddleware', 'D');
+        $this->add('director/vistaCrearProfesor', 'DirectorController', 'vistaCrearProfesor', 'CheckRoleMiddleware', 'D');
+        $this->add('director/crearProfesor', 'DirectorController', 'crearProfesor', 'CheckRoleMiddleware', 'D');
+        $this->add('director/vistaEditarPerfil', 'DirectorController', 'vistaEditarPerfil', 'CheckRoleMiddleware', 'D');
+        $this->add('director/actualizarPerfil', 'DirectorController', 'actualizarPerfil', 'CheckRoleMiddleware', 'D');
+        //$this->add('director/enviarEmailProfesor/:destinatario/:password/:usuario_name', 'DirectorController', 'enviarEmailProfesor', 'CheckRoleMiddleware', 'D');
+       
+        
+
+        // Profesor
+        $this->add('profesor/dashboard', 'ProfesorController', 'dashboard', 'CheckRoleMiddleware', 'P');
+        $this->add('profesor/vistaEditarPerfil', 'ProfesorController', 'vistaEditarPerfil', 'CheckRoleMiddleware', 'P');
+        $this->add('profesor/actualizarPerfil', 'ProfesorController', 'actualizarPerfil', 'CheckRoleMiddleware', 'P');
+        $this->add('profesor/darDeBajaAlumno/:id/:carrera', 'ProfesorController', 'darDeBajaAlumno', 'CheckRoleMiddleware', 'P');
+        
+        // Alumno
+        $this->add('alumno/vistaEditarPerfil', 'AlumnoController', 'vistaEditarPerfil', 'CheckRoleMiddleware', 'A');
+        $this->add('alumno/actualizarPerfil', 'AlumnoController', 'actualizarPerfil', 'CheckRoleMiddleware', 'A');
+    
+    }
+
     public function run() {
-        // 1. Obtener la URL. Si no hay nada, vamos al 'home'
-        $url = isset($_GET['url']) ? $_GET['url'] : 'home';
+        // Registrar todas las rutas
+        $this->registerRoutes();
         
-        // 2. Dividir la URL en partes (Controlador / Método / Parámetros...)
-        $url = rtrim($url, '/');
-        $url = explode('/', $url);
-
-        // 3. Definir el Controlador
-        $controllerName = isset($url[0]) ? ucwords($url[0]) . 'Controller' : 'HomeController';
+        // Obtener la URL solicitada
+        $url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
+        $url = ltrim($url, '/'); // Asegurar que no tenga slash al inicio
         
-        $file = ROOT_PATH . 'app/controllers/' . $controllerName . '.php'; 
-
-        if(file_exists($file)) {
-            // require_once del controlador (asumiendo que el Autoloader lo incluye)
-            
-            $controller = new $controllerName;
-
-            // 4. Definir el método a ejecutar
-            $methodName = isset($url[1]) ? $url[1] : 'index';
-            
-            if(method_exists($controller, $methodName)) {
-                
-                // 5. CAPTURAR TODOS LOS PARÁMETROS RESTANTES
-                // Extraemos todos los segmentos de la URL a partir del índice 2
-                // Si la URL es: profesor/darDeBajaAlumno/12/5
-                // $url[0] = profesor, $url[1] = darDeBajaAlumno
-                // $paramsArray será: [12, 5]
-                $paramsArray = array_slice($url, 2); 
-                
-                // Ejecutamos el método del controlador. El operador ... (splat) 
-                // "desempaca" el array $paramsArray en argumentos individuales.
-                // Es decir, llama a $controller->darDeBajaAlumno(12, 5);
-                $controller->{$methodName}(...$paramsArray); 
-                
-            } else {
-                echo "Error 404: El método '{$methodName}' no existe en el controlador '{$controllerName}'.";
+        echo "DEBUG - URL solicitada: '$url'<br>"; // TEMPORAL para debugging
+        
+        // Buscar coincidencia exacta primero
+        if (isset($this->routes[$url])) {
+            $this->dispatch($this->routes[$url]);
+            return;
+        }
+        
+        // Buscar coincidencia con parámetros
+        foreach ($this->routes as $routeUrl => $routeConfig) {
+            if (strpos($routeUrl, ':') !== false && $this->matchPattern($routeUrl, $url, $params)) {
+                $this->dispatch($routeConfig, $params);
+                return;
             }
+        }
+        
+        // Ruta no encontrada
+        http_response_code(404);
+        echo "Ruta no encontrada: " . $url;
+    }
+    
+    private function matchPattern($routeUrl, $requestUrl, &$params) {
+        $routeParts = explode('/', $routeUrl);
+        $requestParts = explode('/', $requestUrl);
+        
+        if (count($routeParts) !== count($requestParts)) {
+            return false;
+        }
+        
+        $params = [];
+        foreach ($routeParts as $index => $routePart) {
+            if (strpos($routePart, ':') === 0) {
+                $paramName = substr($routePart, 1);
+                $params[$paramName] = $requestParts[$index];
+            } elseif ($routePart !== $requestParts[$index]) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    private function dispatch($route, $params = []) {
+        // --- EJECUCIÓN DEL MIDDLEWARE ---
+        if ($route['middleware']) {
+            $middlewareClass = $route['middleware'];
+            $middlewareParam = $route['param'];
+
+            $middleware = new $middlewareClass();
+            if (!$middleware->handle($middlewareParam)) {
+                // El middleware ya manejó la respuesta (acceso denegado)
+                return;
+            }
+        }
+        
+        // --- LLAMADA AL CONTROLADOR ---
+        $controllerName = $route['controller'];
+        $methodName = $route['method'];
+        
+        $controller = new $controllerName(); 
+        
+        // Pasar parámetros si existen
+        if (!empty($params)) {
+            $controller->{$methodName}(...array_values($params));
         } else {
-            echo "Error 404: El controlador '{$controllerName}' no existe.";
+            $controller->{$methodName}();
         }
     }
 }
+?>

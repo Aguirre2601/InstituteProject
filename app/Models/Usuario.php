@@ -336,7 +336,7 @@ public function listarAlumnos() {
     /**
      * Elimina las asignaciones de carrera anteriores e inserta las nuevas.
      */
-    public function actualizarCarrerasProfesor($id_usuario, array $carreras_ids) {
+    public function actualizarCarreras($id_usuario, array $carreras_ids) {
         // Si no hay carreras seleccionadas, solo debe eliminar las antiguas
         if (empty($carreras_ids)) {
             $query_delete = "DELETE FROM usuario_carrera WHERE id_usuario = ?";

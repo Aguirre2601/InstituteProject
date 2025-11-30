@@ -1,20 +1,7 @@
 <?php
 class AlumnoController{
-    
-    // Helper: Centralizar la verificación de permisos
-    private function isAlumno() {
-        if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'A') {
-            // Si no es Alumno, redirigimos al login o a donde corresponda
-            AuthController::redirectToDashboard(null); 
-            return false;
-        }
-        return true;
-    }
-    
     // URL: /alumno/vistaEditarPerfil (Muestra el formulario - MÉTODO GET)
     public function vistaEditarPerfil() {
-        if (!$this->isAlumno()) return;
-
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
         $localidadModel = new Localidad($db); 
@@ -42,11 +29,6 @@ class AlumnoController{
 
     // URL: /alumno/actualizarPerfil (Procesa el formulario - MÉTODO POST)
     public function actualizarPerfil() {
-        if (!$this->isAlumno() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            require_once ROOT_PATH . 'app/views/alumno/perfil_editar.php';
-            exit();
-        }
-
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
 
