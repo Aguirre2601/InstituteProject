@@ -23,7 +23,7 @@
 
     <h2>🧑‍🏫 Listado de Profesores Activos (<?= count($profesores) ?>)</h2>
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <select id="filtroCarreraAlumno">
+        <select id="filtroCarreraProfesor">
             <option value="">Filtrar por Carrera</option>
             <?php foreach ($carreras_filtro as $carrera): ?>
                 <option value="<?= $carrera->descripcion ?>"><?= $carrera->descripcion ?></option>
@@ -68,6 +68,9 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    <p id="sinResultadosP" style="display:none; color:red; text-align:center; margin-top:10px;">
+        No se encontraron registros con esos filtros.
+    </p>
 
     <br><hr><br>
 
@@ -110,16 +113,14 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    <p id="sinResultadosA" style="display:none; color:red; text-align:center; margin-top:10px;">
+        No se encontraron registros con esos filtros.
+    </p>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // ###########################################################
-        // 1. Obtención de Elementos del DOM
-        // ###########################################################
-
         // PROFESORES:
-        // Nota: 'filtroCarreraAlumno' está mal nombrado en el HTML, pero asumo que es el filtro de Carrera para Profesores.
-        const inputFiltroCarreraProfesor = document.getElementById('filtroCarreraAlumno'); 
+        const inputFiltroCarreraProfesor = document.getElementById('filtroCarreraProfesor'); 
         const inputFiltroProfesor = document.getElementById('filtroProfesor');           
         const tablaProfesores = document.getElementById('tablaProfesores');
         
@@ -128,10 +129,10 @@
         const inputNombreAlumno = document.getElementById('filtroNombreAlumno');        
         const tablaAlumnos = document.getElementById('tablaAlumnos');
 
-        // ###########################################################
-        // 2. Función de Filtrado Genérica y Reutilizable
-        // ###########################################################
-
+        // ELEMENTOS DE MENSAJE DE NO RESULTADOS
+        const mensajeSinResultadosA = document.getElementById('sinResultadosA');
+        const mensajeSinResultadosP = document.getElementById('sinResultadosP');
+        
         /**
          * Aplica filtros de texto/DNI y carrera a una tabla específica.
          * @param {HTMLElement} tablaElement - La tabla a filtrar.
@@ -140,11 +141,13 @@
          * @param {number} idxDNI - Índice de la columna DNI.
          * @param {number} idxNombre - Índice de la columna Nombre/Apellido.
          * @param {number} idxCarrera - Índice de la columna Carreras.
+         * @param {HTMLElement} mensajeElement - El elemento P que muestra el mensaje de no resultados.
          */
-        function filtrarTabla(tablaElement, filtroTexto, filtroCarrera, idxDNI, idxNombre, idxCarrera) {
+        function filtrarTabla(tablaElement, filtroTexto, filtroCarrera, idxDNI, idxNombre, idxCarrera, mensajeElement) {
             if (!tablaElement) return;
 
             const filas = tablaElement.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let filasVisibles = 0; // Contador de filas que SÍ coinciden con el filtro
             
             for (let i = 0; i < filas.length; i++) {
                 // Obtenemos las celdas necesarias usando los índices proporcionados
@@ -180,36 +183,36 @@
                 }
                 
                 filas[i].style.display = mostrar ? "" : "none";
+                
+                // Si la fila se muestra, incrementamos el contador
+                if (mostrar) {
+                    filasVisibles++;
+                }
+            }
+            
+            // --- MOSTRAR MENSAJE ---
+            // Si el contador de filas visibles es CERO, mostramos el mensaje.
+            if (mensajeElement) {
+                mensajeElement.style.display = (filasVisibles === 0) ? 'block' : 'none';
             }
         }
 
-
-        // ###########################################################
-        // 3. Lógica Específica para Profesores
-        // ###########################################################
         function filtrarProfesores() {
             const filtroTexto = inputFiltroProfesor.value.toLowerCase();
             const filtroCarrera = inputFiltroCarreraProfesor.value.toLowerCase();
             
-            // Índices de la tabla Profesores (DNI=0, Nombre=1, Carreras=7)
-            filtrarTabla(tablaProfesores, filtroTexto, filtroCarrera, 0, 1, 7);
+            // Índices de la tabla Profesores (DNI=0, Nombre=1, Carreras=7). Se añade el elemento del mensaje.
+            filtrarTabla(tablaProfesores, filtroTexto, filtroCarrera, 0, 1, 7, mensajeSinResultadosP);
         }
         
-        // ###########################################################
-        // 4. Lógica Específica para Alumnos
-        // ###########################################################
         function filtrarAlumnos() {
             const filtroTexto = inputNombreAlumno.value.toLowerCase();
             const filtroCarrera = inputFiltroCarreraAlumno.value.toLowerCase();
             
-            // Índices de la tabla Alumnos (DNI=0, Nombre=1, Carreras=6)
-            filtrarTabla(tablaAlumnos, filtroTexto, filtroCarrera, 0, 1, 6);
+            // Índices de la tabla Alumnos (DNI=0, Nombre=1, Carreras=6). Se añade el elemento del mensaje.
+            filtrarTabla(tablaAlumnos, filtroTexto, filtroCarrera, 0, 1, 6, mensajeSinResultadosA);
         }
 
-
-        // ###########################################################
-        // 5. Asignación de Eventos
-        // ###########################################################
 
         // Eventos para Profesores (Text input y Combo de carrera)
         inputFiltroProfesor.addEventListener('keyup', filtrarProfesores);

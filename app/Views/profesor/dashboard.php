@@ -126,8 +126,8 @@
                 let hayResultados = false;
 
                 for (let i = 0; i < filas.length; i++) {
-                    const celdaCarrera = filas[i].getElementsByTagName('td')[0]; // Columna 0
-                    const celdaNombre = filas[i].getElementsByTagName('td')[2];  // Columna 2 (Nombre)
+                    const celdaCarrera = filas[i].getElementsByTagName('td')[5]; // Columna 5 (Carrera)
+                    const celdaNombre = filas[i].getElementsByTagName('td')[1];  // Columna 1 (Nombre)
 
                     if (celdaCarrera && celdaNombre) {
                         const textoCarrera = celdaCarrera.textContent || celdaCarrera.innerText;
