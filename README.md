@@ -84,3 +84,16 @@ director123: director123
 
 ## Name
 CRUD INSTITUTO
+
+## Usar una Constante de URL
+Para evitar problemas si algún día cambias de dominio o mueves el proyecto a una subcarpeta (ej: localhost/mi-proyecto), es una muy buena práctica definir una constante para la URL base en tu index.php.
+
+1. En public/index.php (Agregar al inicio):
+
+// Define la URL base de tu proyecto (sin barra al final)
+// Cambia esto si mueves el proyecto de servidor
+define('BASE_URL', 'http://instituto93.com');
+2. En app/views/layouts/header.php (Usar la constante):
+
+<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+De esta forma, te aseguras de que los estilos carguen siempre, sin importar la profundidad de la ruta en la que te encuentres (/profesor/dashboard, etc.).

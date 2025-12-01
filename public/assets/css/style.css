@@ -1,0 +1,52 @@
+/*public/assets/css/style.css*/
+:root {
+	--varColorFondo: #164e80;
+	--varColorFondo1:rgb(2, 34, 63)0;
+	--varColorBotones:#001f3a;
+	--varColorBotonEditar:#776b00;
+	--varColorBotonEliminar:#6e0000;
+	--varColorBotonCrear:#0c3a00;
+	--varcolorLetra:rgb(2, 2, 2);
+	
+}
+h1,h2,h3,h4{color:rgb(0, 0, 0);}
+body{
+	display:grid;
+	min-height: 100dvh;
+	grid-template-rows: auto 1fr auto;
+}
+header{
+	background: var(--varColorFondo);
+}
+
+footer{
+	background: var(--varColorFondo1);
+	color: white;
+}
+a{
+	text-decoration: none;
+	font-size: 1.5rem;
+}
+
+
+.btn {
+    border-radius: 0.5rem;
+    text-align: center;
+    justify-content: center;
+    color: white;
+    background-color: var(--varColorBotones);
+    transition: background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out; 
+}
+
+.btn:hover{
+    background-color: var(--varColorFondo);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6); 
+	color: white;
+}
+
+
+
+
+
+
+

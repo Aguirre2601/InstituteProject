@@ -59,12 +59,12 @@ class AlumnoController{
         if ($exito_perfil) {
             // Actualizar la asignación de Carreras
             if ($usuarioModel->actualizarCarreras($id_alumno, $carreras_seleccionadas)) {
-                 $mensaje = "Perfil y asignación de carreras actualizados con éxito.";
+                  $_SESSION['info'] = "Perfil y asignación de carreras actualizados con éxito.";
             } else {
-                $mensaje = "Perfil actualizado, pero **falló** la asignación de carreras.";
+                $_SESSION['warning'] = "Perfil actualizado, pero **falló** la asignación de carreras.";
             }
         } else {
-            $mensaje = "Error al actualizar el perfil (DNI/Email duplicado).";
+            $_SESSION['error'] = "Error al actualizar el perfil (DNI/Email duplicado).";
         }
 
         $_SESSION['mensaje'] = $mensaje;
@@ -123,12 +123,12 @@ class AlumnoController{
                 header("Location: /home/login");
             } else {
                  // Falló la asignación de carreras
-                $_SESSION['mensaje'] = "Alumno creado, pero **FALLÓ** la asignación a carreras. Contacte al administrador.";
+                $_SESSION['warning'] = "Alumno creado, pero **FALLÓ** la asignación a carreras. Contacte al administrador.";
                 header("Location: " . '/alumno/vistaCrearUsuarioAlumno');
             }
         
         } else {
-            $_SESSION['mensaje'] = "Error al crear el alumno. El DNI ya existen.";
+            $_SESSION['error'] = "Error al crear el alumno. El DNI ya existen.";
             header("Location: " . '/alumno/vistaCrearUsuarioAlumno');
         }
         exit();

@@ -57,7 +57,7 @@ class Router {
         $url = isset($_GET['url']) ? rtrim($_GET['url'], '/') : '';
         $url = ltrim($url, '/'); // Asegurar que no tenga slash al inicio
         
-        echo "DEBUG - URL solicitada: '$url'<br>"; // TEMPORAL para debugging
+        //echo "DEBUG - URL solicitada: '$url'<br>"; // TEMPORAL para debugging
         
         // Buscar coincidencia exacta primero
         if (isset($this->routes[$url])) {

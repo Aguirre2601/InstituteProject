@@ -12,7 +12,7 @@ class CheckRoleMiddleware
         $rolActual = $_SESSION['rol'] ?? ''; // Cambié 'id_rol' por 'rol'
         
         // DEBUGGING - SOLO EN DESARROLLO
-        if (isset($_GET['debug'])) {
+     /*   if (isset($_GET['debug'])) {
             echo "<h1>Debug del Middleware:</h1>";
             echo "Rol Requerido: [" . $rolEsperado . "]<br>";
             echo "Rol Actual en Session: [" . $rolActual . "]<br>";
@@ -22,7 +22,7 @@ class CheckRoleMiddleware
             } else {
                 echo "<p style='color:red;'>¡FALLÓ EL CHECK! El middleware FALLA.</p>";
             }
-        }
+        }*/
         
         // Verificar sesión y rol
         if (!isset($_SESSION['user_id']) || $rolActual !== $rolEsperado) {

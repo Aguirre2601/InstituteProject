@@ -46,7 +46,7 @@ class AuthController {
                 
                 // 6. Verificar si el usuario está ACTIVO
                 if ($usuario_data->activo == 0) {
-                    $_SESSION['mensaje'] = "Su cuenta ha sido dada de baja.";
+                    $_SESSION['warning'] = "Su cuenta ha sido dada de baja.";
                     header("Location: /home/login");
                     exit();
                 }
@@ -65,13 +65,13 @@ class AuthController {
 
             } else {
                 //Error de Contraseña
-                $_SESSION['mensaje'] = "Contraseña incorrecta.";
+                $_SESSION['error'] = "Contraseña incorrecta.";
                 header("Location: /home/login");
             }
 
         } else {
             //Error: Usuario no encontrado
-            $_SESSION['mensaje'] = "Usuario no encontrado.";
+            $_SESSION['warning'] = "Usuario no encontrado.";
             header("Location: /home/login");
         }
     }

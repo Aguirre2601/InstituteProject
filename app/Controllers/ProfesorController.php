@@ -15,7 +15,9 @@ class ProfesorController{
         // 3. OBTENER CARRERAS DEL PROFESOR (Para el filtro combobox)
         // Esto nos permite llenar el <select> solo con las materias que él dicta
         $carreras_filtro = $usuarioModel->obtenerCarrerasPorUsuario($id_profesor);
-
+        $scripts = [
+        'profesorDashboard.js'
+        ];
         require_once ROOT_PATH . 'app/views/profesor/dashboard.php';
     }
     
@@ -69,7 +71,7 @@ class ProfesorController{
         $carreras_asignadas_ids = array_map(function($c){ return $c->id; }, $carreras_asignadas);
 
         if (!$profesor) {
-            $_SESSION['mensaje'] = "Error: No se encontró el perfil para editar.";
+            $_SESSION['error'] = "Error: No se encontró el perfil para editar.";
             header("Location: /profesor/dashboard");
             exit();
         }
@@ -109,12 +111,12 @@ class ProfesorController{
         if ($exito_perfil) {
             // 2. Actualizar la asignación de Carreras
             if ($usuarioModel->actualizarCarreras($id_profesor, $carreras_seleccionadas)) {
-                 $mensaje = "Perfil y asignación de carreras actualizados con éxito.";
+                $_SESSION['info'] = "Perfil y asignación de carreras actualizados con éxito.";
             } else {
-                $mensaje = "Perfil actualizado, pero **falló** la asignación de carreras.";
+                 $_SESSION['warning'] =  "Perfil actualizado, pero **falló** la asignación de carreras.";
             }
         } else {
-            $mensaje = "Error al actualizar el perfil (DNI/Email duplicado).";
+            $_SESSION['error'] =  "Error al actualizar el perfil (DNI/Email duplicado).";
         }
 
         $_SESSION['mensaje'] = $mensaje;

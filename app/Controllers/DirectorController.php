@@ -17,6 +17,9 @@ class DirectorController {
 
         // 3. OBTENER CARRERAS (Para el filtro combobox)
         $carreras_filtro = $carreraModel->obtenerTodas(); 
+        $scripts = [
+        'directorDashboard.js'
+        ];
         // 3. Cargamos la vista principal del director
         // La vista dashboard.php ahora espera DOS variables: $profesores y $alumnos
         require_once ROOT_PATH . 'app/views/director/dashboard.php';
@@ -40,10 +43,10 @@ class DirectorController {
             if ($usuarioModel->darBaja()) {
                 $_SESSION['mensaje'] = "Profesor dado de baja lógicamente con éxito.";
             } else {
-                $_SESSION['mensaje'] = "Error al dar de baja al profesor.";
+                $_SESSION['error'] = "Error al dar de baja al profesor.";
             }
         } else {
-            $_SESSION['mensaje'] = "Error: El usuario no existe o no es un Profesor.";
+            $_SESSION['error'] = "Error: El usuario no existe o no es un Profesor.";
         }
 
         // Redireccionar al listado
@@ -114,12 +117,12 @@ class DirectorController {
                 header("Location: " . '/director/dashboard');
             } else {
                  // Falló la asignación de carreras
-                $_SESSION['mensaje'] = "Profesor creado, pero **FALLÓ** la asignación a carreras. Contacte al administrador.";
+                $_SESSION['warning'] = "Profesor creado, pero **FALLÓ** la asignación a carreras. Contacte al administrador.";
                 header("Location: " . '/director/dashboard');
             }
         
         } else {
-            $_SESSION['mensaje'] = "Error al crear el profesor. El DNI o Email ya existen.";
+            $_SESSION['error'] = "Error al crear el profesor. El DNI o Email ya existen.";
             header("Location: " . '/director/vistaCrearProfesor');
         }
         exit();
@@ -161,7 +164,7 @@ class DirectorController {
         $localidades = $localidadModel->obtenerTodas();
 
         if (!$director) {
-            $_SESSION['mensaje'] = "Error: No se encontró el perfil para editar.";
+            $_SESSION['error'] = "Error: No se encontró el perfil para editar.";
             header("Location: /director/dashboard");
             exit();
         }
@@ -193,16 +196,14 @@ class DirectorController {
         $usuarioModel->calle = filter_input(INPUT_POST, 'calle', FILTER_SANITIZE_SPECIAL_CHARS);
         $usuarioModel->id_localidad = filter_input(INPUT_POST, 'id_localidad', FILTER_SANITIZE_NUMBER_INT);
 
-        $mensaje = "Perfil actualizado con éxito.";
         $exito_perfil = $usuarioModel->editar(); // Ejecuta el UPDATE
 
         if ($exito_perfil) {
-                $mensaje = "Perfil actualizado con éxito.";
+                $_SESSION['mensaje'] = "Perfil actualizado con éxito.";
             } else {
-                $mensaje = "Error al actualizar el perfil.";
+                $_SESSION['error'] = "Error al actualizar el perfil.";
             }
 
-        $_SESSION['mensaje'] = $mensaje;
         header("Location: " . '/director/dashboard');
         exit();
     }

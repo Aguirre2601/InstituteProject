@@ -1,150 +1,141 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Perfil - Alumno</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-        h1 { color: #007bff; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input[type="text"], input[type="email"], input[type="tel"], input[type="password"], select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        .note {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            border-radius: 4px;
-        }
-        .error { color: red; margin-top: 10px; }
-    </style>
-</head>
-<body>
+<?php
+//Definir variables específicas para el header
+$pageTitle = "Crear Usuario Alumno";
+require_once ROOT_PATH . 'app/views/layouts/header.php';
+?>
 
-<div class="container">
-    <h1>Crear Usuario Alumno</h1>
+<?php require_once ROOT_PATH . 'app/views/partials/session_messages_toast.php'; ?>
 
-    <?php 
-    // Muestra errores de validación si existen (esto lo manejaría el Controller)
-    if (isset($_SESSION['error'])): 
-    ?>
-        <p class="error"><?= $_SESSION['error'] ?></p>
-    <?php 
-        unset($_SESSION['error']); 
-    endif; 
-    ?>
-    <?php 
-    // Mensajes de sesión
-    if (isset($_SESSION['mensaje'])): 
-    ?>
-        <p class="success"><?= $_SESSION['mensaje'] ?></p>
-    <?php 
-        unset($_SESSION['mensaje']); 
-    endif; 
-    ?>
+    <div class="container py-5">
+    
+    <h1 class="mb-4 border-bottom pb-2">Crear Nuevo Usuario</h1>
 
     <form action="/alumno/crearUsuarioAlumno" method="POST">
-        <fieldset>
-            <legend>Información Personal</legend>
-
-            <label for="dni">DNI:</label>
-            <input type="text" id="dni" name="dni" value="<?= $usuario->dni ?? '' ?>" required>
-
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" name="nombre" value="<?= $usuario->nombre ?? '' ?>" required>
-
-            <label for="apellido">Apellido:</label>
-            <input type="text" id="apellido" name="apellido" value="<?= $usuario->apellido ?? '' ?>" required>
+        <div class="row g-3">
             
-            <label for="telefono">Teléfono:</label>
-            <input type="tel" id="telefono" name="telefono" value="<?= $usuario->telefono ?? '' ?>">
+            <div class="col-md-6">
+                <fieldset class="border p-4 shadow-sm mb-4">
+                    <legend class="float-none w-auto px-1 fs-5 text-primary">Información Personal</legend>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="<?= $usuario->email ?? '' ?>" required>
+                    <div class="mb-3">
+                        <label for="dni" class="form-label">DNI:</label>
+                        <input type="text" id="dni" name="dni" value="<?= $usuario->dni ?? '' ?>" class="form-control" required>
+                    </div>
 
-            <label for="email">Nombre de usuario:</label>
-            <input type="text" id="usuario_name" name="usuario_name" value="<?= $usuario->usuario_name ?? '' ?>" required>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <input type="text" id="nombre" name="nombre" value="<?= $usuario->nombre ?? '' ?>" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="apellido" class="form-label">Apellido:</label>
+                            <input type="text" id="apellido" name="apellido" value="<?= $usuario->apellido ?? '' ?>" class="form-control" required>
+                        </div>
+                    </div>
 
-        </fieldset>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono" class="form-label">Teléfono:</label>
+                            <input type="tel" id="telefono" name="telefono" value="<?= $usuario->telefono ?? '' ?>" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email:</label>
+                            <input type="email" id="email" name="email" value="<?= $usuario->email ?? '' ?>" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="usuario_name" class="form-label">Nombre de usuario:</label>
+                        <input type="text" id="usuario_name" name="usuario_name" value="<?= $usuario->usuario_name ?? '' ?>" class="form-control" required>
+                    </div>
 
-        <fieldset>
-            <legend>Dirección</legend>
+                </fieldset>
+            </div>
 
-            <label for="id_localidad">Localidad:</label>
-            <select id="id_localidad" name="id_localidad" required>
-                <option value="">Seleccione su Localidad</option>
-                <?php 
-                // Asegúrate de que la variable $localidades esté definida
-                if (isset($localidades) && is_array($localidades)):
-                    foreach ($localidades as $localidad): 
-                        // Marca la localidad actual del usuario como seleccionada
-                        $selected = ($localidad->id == ($usuario->id_localidad ?? 0)) ? 'selected' : '';
-                ?>
-                    <option value="<?= $localidad->id ?>" <?= $selected ?>>
-                        <?= $localidad->descripcion ?>
-                    </option>
-                <?php 
-                    endforeach;
-                endif;
-                ?>
-            </select>
+            <div class="col-md-6">
+                
+                <fieldset class="border p-4 shadow-sm mb-4">
+                    <legend class="float-none w-auto px-1 fs-5 text-primary">Dirección</legend>
+
+                    <div class="mb-3">
+                        <label for="id_localidad" class="form-label">Localidad:</label>
+                        <select id="id_localidad" name="id_localidad" class="form-select" required>
+                            <option value="">Seleccione su Localidad</option>
+                            <?php 
+                            if (isset($localidades) && is_array($localidades)):
+                                foreach ($localidades as $localidad): 
+                                    $selected = ($localidad->id == ($usuario->id_localidad ?? 0)) ? 'selected' : '';
+                            ?>
+                                <option value="<?= $localidad->id ?>" <?= $selected ?>>
+                                    <?= $localidad->descripcion ?>
+                                </option>
+                            <?php 
+                                endforeach;
+                            endif;
+                            ?>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="calle" class="form-label">Calle y Número:</label>
+                        <input type="text" id="calle" name="calle" value="<?= $usuario->calle ?? '' ?>" class="form-control">
+                    </div>
+                </fieldset>
+                
+                <fieldset class="border p-4 shadow-sm mb-4">
+                    <legend class="float-none w-auto px-1 fs-5 text-primary">Contraseña</legend>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Nueva Contraseña:</label>
+                        <input type="password" id="password" name="password" placeholder="Debe tener al menos 8 caracteres." class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmar_password" class="form-label">Confirmar Contraseña:</label>
+                        <input type="password" id="confirmar_password" name="confirmar_password" class="form-control" required>
+                    </div>
+                </fieldset>
+            </div>
             
-            <label for="calle">Calle y Número:</label>
-            <input type="text" id="calle" name="calle" value="<?= $usuario->calle ?? '' ?>">
+            <div class="col-12">
+                <fieldset class="border p-4 shadow-sm mb-4">
+                    <legend class="float-none w-auto px-1 fs-5 text-info">Carreras a Asignar</legend>
+                    
+                    <label class="form-label d-block">Seleccione las Carreras (Puede seleccionar varias):</label>
+                    
+                    <div class="p-3 border rounded" style="max-height: 200px; overflow-y: auto;">
+                        <?php 
+                        foreach ($carreras_totales as $carrera): 
+                        ?>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="carreras[]" value="<?= $carrera->id ?>" id="carrera_<?= $carrera->id ?>">
+                                <label class="form-check-label" for="carrera_<?= $carrera->id ?>">
+                                    <?= $carrera->descripcion ?>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
+                        
+                        <?php if (empty($carreras_totales)): ?>
+                            <div class="alert alert-warning mt-3" role="alert">
+                                ⚠️ No hay carreras registradas. No se podrá asignar el alumno.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </fieldset>
+            </div>
             
-        </fieldset>
-        
-        <fieldset>
-            <legend>Carreras a Asignar</legend>
-                <label>Seleccione las Carreras (Puede seleccionar varias):</label>
-                <div style="border: 1px solid #ccc; padding: 10px; height: 150px; overflow-y: scroll; background-color: #f9f9f9;">
-                    <?php 
-                    // La variable $carreras viene del DirectorController
-                    foreach ($carreras_totales as $carrera): 
-                    ?>
-                        <label style="display: block; font-weight: normal; margin-bottom: 5px;">
-                            <input type="checkbox" name="carreras[]" value="<?= $carrera->id ?>">
-                            <?= $carrera->descripcion ?>
-                        </label>
-                    <?php endforeach; ?>
-                    <?php if (empty($carreras_totales)): ?>
-                        <p>⚠️ No hay carreras registradas. No se podrá asignar el profesor.</p>
-                    <?php endif; ?>
-                </div>
-        </fieldset>
+            <div class="col-12 mt-4 text-center">
+                <a href="/" class="btn btn-lg ms-3">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-lg">
+                    <i class="fas fa-save"></i> 💾 Crear Usuario
+                </button>
+            </div>
 
-        <fieldset>
-            <legend>Contraseña</legend>
-            <label for="password">Nueva Contraseña:</label>
-            <input type="password" id="password" name="password" placeholder="Debe tener al menos 8 caracteres." required>
-
-            <label for="confirmar_password">Confirmar Contraseña:</label>
-            <input type="password" id="confirmar_password" name="confirmar_password" required>
-        </fieldset>
-
-        <button type="submit">💾 Crear Usuario</button>
-    </form>
+        </div> </form>
 </div>
 
-</body>
-</html>
+<?php
+require_once ROOT_PATH . 'app/views/layouts/footer.php';
+?>
