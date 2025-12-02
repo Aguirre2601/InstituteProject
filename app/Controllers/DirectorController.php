@@ -97,20 +97,6 @@ class DirectorController {
         $usuarioModel->password = $password_generada;
         $usuarioModel->usuario_name = $usuario_name_generado;
         $usuarioModel->id_rol = 'P'; // Rol fijo para Profesor
-
-        // VALIDACIÓN DE UNICIDAD
-    /*    if ($usuarioModel->existe('email', $usuarioModel->email)) {
-            $_SESSION['mensaje'] = "⚠️ Error: El email '{$usuarioModel->email}' ya está registrado.";
-            header("Location: /director/crearProfesor"); 
-            exit;
-        }
-
-        if ($usuarioModel->existe('dni', $usuarioModel->dni)) {
-            $_SESSION['mensaje'] = "⚠️ Error: El DNI '{$usuarioModel->dni}' ya está registrado.";
-            header("Location: /director/crearProfesor");
-            exit;
-        }*/
-
         // 4. Crear en la base de datos
         if ($usuarioModel->crear()) {
 
@@ -140,18 +126,17 @@ class DirectorController {
     // Función de envío de email (Notificación)
     private function enviarEmailProfesor($destinatario, $apellido, $password, $usuario_name) {
     // Instanciar el servicio de correo
-    $mailer = new \App\Services\Mailer();
+        $mailer = new \App\Services\Mailer();
 
-    // Intentar enviar el email
-    if ($mailer->enviarCredenciales($destinatario, $apellido, $usuario_name, $password)) {
-        // Éxito:
-        $_SESSION['mensaje'] = "Profesor creado y credenciales enviadas por email.";
-    } else {
-        // Fallo en el envío del email:
-        $_SESSION['warning'] = "Profesor creado, pero falló el envío del email con las credenciales.";
-        // Es CRÍTICO guardar el mensaje de error de PHPMailer en el log para debug.
-    }
-    
+        // Intentar enviar el email
+        if ($mailer->enviarCredenciales($destinatario, $apellido, $usuario_name, $password)) {
+            // Éxito:
+            $_SESSION['mensaje'] = "Profesor creado y credenciales enviadas por email.";
+        } else {
+            // Fallo en el envío del email:
+            $_SESSION['warning'] = "Profesor creado, pero falló el envío del email con las credenciales.";
+            // Es CRÍTICO guardar el mensaje de error de PHPMailer en el log para debug.
+        }
     }
 
     // URL: /director/vistaEditarPerfil (Muestra el formulario - MÉTODO GET)

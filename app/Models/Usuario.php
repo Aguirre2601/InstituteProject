@@ -59,13 +59,16 @@ class Usuario {
         $stmt->bindParam(':id_localidad', $this->id_localidad);
         $stmt->bindParam(':fecha_inicio', $fecha_actual);
         $stmt->bindParam(':activo', $estado_activo);
-
-        if($stmt->execute()) {
-            $this->id = $this->conn->lastInsertId();
-            return true;
-        }
         
-        return false;
+        try{
+            if($stmt->execute()) {
+                $this->id = $this->conn->lastInsertId();
+                return true;
+            }
+        }catch(Exception $e){
+            error_log("Error al crear usuario: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function editar(){
@@ -213,14 +216,6 @@ class Usuario {
         }
     }
 
-    /*//INSCRIBIR EN CARRERA (Manejo de la tabla pivote usuario_carrera)
-    public function inscribirCarrera($id_carrera) {
-        $query = "INSERT INTO usuario_carrera (id_usuario, id_carrera) VALUES (:id_usuario, :id_carrera)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id_usuario', $this->id);
-        $stmt->bindParam(':id_carrera', $id_carrera);
-        return $stmt->execute();
-    }*/
 
     // Consulta base privada para ser reutilizada en listarProfesores y listarAlumnos
     private function getBaseQuery() {
@@ -427,18 +422,5 @@ public function eliminarRelacionUsuarioCarrera($id_usuario, $id_carrera) {
     return $stmt->execute();
 }
 
-/**
- * Verifica si un campo (ej. email o dni) ya existe en la base de datos.
- */
-public function existe(string $campo, string $valor): bool {
-    // Asumiendo que tienes un método estático para la conexión a la DB
-    $db = Database::getConnection(); 
-    
-    // Consulta SQL segura (usando prepared statement)
-    $stmt = $db->prepare("SELECT COUNT(*) FROM usuario WHERE {$campo} = ?");
-    $stmt->execute([$valor]);
-    
-    // Si el conteo es mayor a 0, el registro ya existe
-    return $stmt->fetchColumn() > 0;
-    }
+
 }
