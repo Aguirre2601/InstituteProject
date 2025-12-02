@@ -74,8 +74,10 @@ class Router {
         }
         
         // Ruta no encontrada
-        http_response_code(404);
-        echo "Ruta no encontrada: " . $url;
+        //http_response_code(404);
+        //echo "Ruta no encontrada: " . $url;
+        $accesoDenegadoMiddleware = new CheckRoleMiddleware();
+        $accesoDenegadoMiddleware->accesoDenegado();
     }
     
     private function matchPattern($routeUrl, $requestUrl, &$params) {
