@@ -72,18 +72,6 @@ class DirectorController {
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
         
-        // VALIDACIÓN DE UNICIDAD
-        if (Usuario::existe('email', $email)) {
-            $_SESSION['mensaje'] = "⚠️ Error: El email '{$email}' ya está registrado.";
-            header("Location: /director/crearProfesor"); 
-            exit;
-        }
-
-        if (Usuario::existe('dni', $dni)) {
-            $_SESSION['mensaje'] = "⚠️ Error: El DNI '{$dni}' ya está registrado.";
-            header("Location: /director/crearProfesor");
-            exit;
-        }
 
         // 1. Generar Contraseña, Usuario Name, y Fechas
         $password_generada = substr(md5(uniqid(rand(), true)), 0, 8);
@@ -109,6 +97,19 @@ class DirectorController {
         $usuarioModel->password = $password_generada;
         $usuarioModel->usuario_name = $usuario_name_generado;
         $usuarioModel->id_rol = 'P'; // Rol fijo para Profesor
+
+        // VALIDACIÓN DE UNICIDAD
+    /*    if ($usuarioModel->existe('email', $usuarioModel->email)) {
+            $_SESSION['mensaje'] = "⚠️ Error: El email '{$usuarioModel->email}' ya está registrado.";
+            header("Location: /director/crearProfesor"); 
+            exit;
+        }
+
+        if ($usuarioModel->existe('dni', $usuarioModel->dni)) {
+            $_SESSION['mensaje'] = "⚠️ Error: El DNI '{$usuarioModel->dni}' ya está registrado.";
+            header("Location: /director/crearProfesor");
+            exit;
+        }*/
 
         // 4. Crear en la base de datos
         if ($usuarioModel->crear()) {
