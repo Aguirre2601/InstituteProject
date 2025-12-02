@@ -28,7 +28,6 @@ class DirectorController {
     
     // URL: /director/darDeBajaProfesor/5 (El ID viene en $id)
     public function darDeBajaProfesor($id) {
-        if (!$this->isDirector() || !is_numeric($id)) return;
 
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
@@ -69,13 +68,22 @@ class DirectorController {
 
     // URL: /director/crearProfesor (POST para procesar el formulario)
     public function crearProfesor() {
-        if (!$this->isDirector() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: /director/dashboard");
-            exit();
-        }
 
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
+        
+        // VALIDACIÓN DE UNICIDAD
+        if (Usuario::existe('email', $email)) {
+            $_SESSION['mensaje'] = "⚠️ Error: El email '{$email}' ya está registrado.";
+            header("Location: /director/crearProfesor"); 
+            exit;
+        }
+
+        if (Usuario::existe('dni', $dni)) {
+            $_SESSION['mensaje'] = "⚠️ Error: El DNI '{$dni}' ya está registrado.";
+            header("Location: /director/crearProfesor");
+            exit;
+        }
 
         // 1. Generar Contraseña, Usuario Name, y Fechas
         $password_generada = substr(md5(uniqid(rand(), true)), 0, 8);
@@ -111,7 +119,7 @@ class DirectorController {
             if ($usuarioModel->asignarCarreras($nuevo_profesor_id, $carreras_seleccionadas)) {
 
                 // 6. Enviar email (Notificación)
-                $this->enviarEmailProfesor($usuarioModel->email, $password_generada, $usuario_name_generado);
+                $this->enviarEmailProfesor($usuarioModel->email, $usuarioModel->apellido, $password_generada, $usuario_name_generado);
 
                 $_SESSION['mensaje'] = "Profesor creado y asignado a carreras con éxito. Se envió un email.";
                 header("Location: " . '/director/dashboard');
@@ -129,24 +137,20 @@ class DirectorController {
     }
 
     // Función de envío de email (Notificación)
-    private function enviarEmailProfesor($destinatario, $password, $usuario_name) {
-        $asunto = "Credenciales de Acceso - Instituto 93";
-        $mensaje = "Hola,\n\nSus credenciales de acceso son:\n";
-        $mensaje .= "Usuario: " . $usuario_name . "\n";
-        $mensaje .= "Contraseña: " . $password . "\n\n";
-        $mensaje .= "Por favor, cambie su contraseña al iniciar sesión.\n";
-        $headers = 'From: noreply@instituto93.com' . "\r\n" .
-                   'Reply-To: noreply@instituto93.com' . "\r\n" .
-                   'X-Mailer: PHP/' . phpversion();
+    private function enviarEmailProfesor($destinatario, $apellido, $password, $usuario_name) {
+    // Instanciar el servicio de correo
+    $mailer = new \App\Services\Mailer();
 
-        // ⚠️ ATENCIÓN: La función mail() de PHP necesita un servidor de correo local 
-        // configurado (ej: Mercury o un servicio SMTP externo).
-        // Si no tienes configurado un servidor, esta línea NO funcionará, pero es la implementación correcta:
-        // mail($destinatario, $asunto, $mensaje, $headers); 
-        
-        // Por ahora, simularemos que se envió y mostraremos un mensaje
-        // (En un entorno de producción, esto SÍ debe funcionar)
-        error_log("EMAIL SIMULADO ENVIADO a {$destinatario}: User={$usuario_name}, Pass={$password}");
+    // Intentar enviar el email
+    if ($mailer->enviarCredenciales($destinatario, $apellido, $usuario_name, $password)) {
+        // Éxito:
+        $_SESSION['mensaje'] = "Profesor creado y credenciales enviadas por email.";
+    } else {
+        // Fallo en el envío del email:
+        $_SESSION['warning'] = "Profesor creado, pero falló el envío del email con las credenciales.";
+        // Es CRÍTICO guardar el mensaje de error de PHPMailer en el log para debug.
+    }
+    
     }
 
     // URL: /director/vistaEditarPerfil (Muestra el formulario - MÉTODO GET)
@@ -174,11 +178,6 @@ class DirectorController {
 
     // URL: /director/actualizarPerfil (Procesa el formulario - MÉTODO POST)
     public function actualizarPerfil() {
-        if (!$this->isDirector() || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: /director/dashboard");
-            exit();
-        }
-
         $db = (new Database())->connect();
         $usuarioModel = new Usuario($db);
 

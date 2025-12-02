@@ -82,6 +82,9 @@ alumno123: alumno123
 profesor123: profe123
 director123: director123
 
+## PARA EL ENVIO DE MAIL 
+composer require phpmailer/phpmailer
+
 ## Name
 CRUD INSTITUTO
 

@@ -427,5 +427,18 @@ public function eliminarRelacionUsuarioCarrera($id_usuario, $id_carrera) {
     return $stmt->execute();
 }
 
-
+/**
+ * Verifica si un campo (ej. email o dni) ya existe en la base de datos.
+ */
+public static function existe(string $campo, string $valor): bool {
+    // Asumiendo que tienes un método estático para la conexión a la DB
+    $db = Database::getConnection(); 
+    
+    // Consulta SQL segura (usando prepared statement)
+    $stmt = $db->prepare("SELECT COUNT(*) FROM usuario WHERE {$campo} = ?");
+    $stmt->execute([$valor]);
+    
+    // Si el conteo es mayor a 0, el registro ya existe
+    return $stmt->fetchColumn() > 0;
+    }
 }

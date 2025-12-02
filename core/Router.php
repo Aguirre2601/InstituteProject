@@ -33,8 +33,8 @@ class Router {
         $this->add('director/crearProfesor', 'DirectorController', 'crearProfesor', 'CheckRoleMiddleware', 'D');
         $this->add('director/vistaEditarPerfil', 'DirectorController', 'vistaEditarPerfil', 'CheckRoleMiddleware', 'D');
         $this->add('director/actualizarPerfil', 'DirectorController', 'actualizarPerfil', 'CheckRoleMiddleware', 'D');
-        //$this->add('director/enviarEmailProfesor/:destinatario/:password/:usuario_name', 'DirectorController', 'enviarEmailProfesor', 'CheckRoleMiddleware', 'D');
-       
+        $this->add('director/enviarEmailProfesor/:destinatario/:apellido/:password/:usuario_name', 'DirectorController', 'enviarEmailProfesor', 'CheckRoleMiddleware', 'D');
+
         
 
         // Profesor
