@@ -40,7 +40,6 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
             <a href="/alumno/vistaCrearUsuarioAlumno" class="btn btn-outline-secondary w-100">
                 Crear Usuario
             </a>
-            <hr>
             
         </div>
     </div>
