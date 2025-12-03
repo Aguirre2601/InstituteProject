@@ -26,7 +26,7 @@ class Mailer {
         $this->mail->Port       = 587; // Puerto para TLS
         
         // Remitente por defecto
-        $this->mail->setFrom('no-reply@instituto.com', 'Instituto 93');
+        $this->mail->setFrom('no-reply@instituto.com', 'ISFDyT N° 93');
     }
 
     /**
