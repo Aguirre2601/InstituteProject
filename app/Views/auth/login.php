@@ -23,6 +23,9 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
                 <div class="mb-4">
                     <label for="password" class="form-label d-flex justify-content-start">Contraseña:</label>
                     <input type="password" id="password" name="password" class="form-control" required>
+                    <div class="text-end"> 
+                        <a href="/auth/vistaRecuperaContrasenia" class="mt-1 fs-6"> ¿Olvidó su contraseña?</a> 
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100 mb-3">
@@ -37,6 +40,7 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
             <a href="/alumno/vistaCrearUsuarioAlumno" class="btn btn-outline-secondary w-100">
                 Crear Usuario
             </a>
+            <hr>
             
         </div>
     </div>

@@ -7,7 +7,9 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
 <?php require_once ROOT_PATH . 'app/views/partials/session_messages_toast.php'; ?>
 
     <div class="container py-5">
-    
+    <div  class="d-flex justify-content-end align-items-end">
+        <a href="/" class="btn btn-lg ms-3"> Cancelar </a>
+    </div>
     <h1 class="mb-4 border-bottom pb-2">Crear Nuevo Usuario</h1>
 
     <form action="/alumno/crearUsuarioAlumno" method="POST">
@@ -125,9 +127,6 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
             </div>
             
             <div class="col-12 mt-4 text-center">
-                <a href="/" class="btn btn-lg ms-3">
-                    Cancelar
-                </a>
                 <button type="submit" class="btn btn-lg">
                     <i class="fas fa-save"></i> 💾 Crear Usuario
                 </button>

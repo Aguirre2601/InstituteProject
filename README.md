@@ -85,6 +85,9 @@ director123: director123
 ## PARA EL ENVIO DE MAIL 
 composer require phpmailer/phpmailer
 
+## ACTUALIZAR EL AUTOLOAD, en consola
+composer dump-autoload
+
 ## Name
 CRUD INSTITUTO
 

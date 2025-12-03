@@ -54,10 +54,9 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
             No hay profesores registrados.
         </div>
     <?php else: ?>
-    <div class="table-responsive" id="tablaContainer">
+    <div class="table-responsive" id="tablaContainer" style="max-height: 400px; overflow-y: auto;" >
         <table id="tablaProfesores" class="table table-striped table-hover align-middle">
-            <!-- Tu contenido actual SIN modificaciones -->
-            <thead class="table-secondary">
+            <thead class="table-secondary  position-sticky top-0 " style="z-index: 1;">
                 <tr>
                     <th>DNI</th>
                     <th>Nombre y Apellido</th>
@@ -70,7 +69,7 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
                     <th class="text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody style="max-height: 350px;">
                 <?php foreach ($profesores as $usuario): ?>
                 <tr>
                     <td><?= $usuario->dni ?></td>
@@ -130,9 +129,9 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
             No hay alumnos registrados.
         </div>
     <?php else: ?>
-        <div class="table-responsive">
-            <table id="tablaAlumnos" class="table table-striped table-hover align-middle">
-                <thead class="table-secondary">
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;" >
+            <table id="tablaAlumnos" class="table table-striped table-hover align-middle" style="max-height: 400px; overflow-y: auto;" >
+                <thead class="table-secondary   position-sticky top-0 " style="z-index: 1;">
                     <tr>
                         <th>DNI</th>
                         <th>Nombre y Apellido</th>
@@ -143,7 +142,7 @@ require_once ROOT_PATH . 'app/views/layouts/header.php';
                         <th>Carreras</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody  style="max-height: 350px;">
                     <?php foreach ($alumnos as $usuario): ?>
                     <tr>
                         <td><?= $usuario->dni ?></td>

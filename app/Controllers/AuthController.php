@@ -88,4 +88,45 @@ class AuthController {
         header("Location: /alumno/vistaCrearUsuarioAlumno");
         exit();
     }
+
+    public function vistaRecuperaContrasenia() {
+        require_once ROOT_PATH . 'app/views/auth/recuperaContrasenia.php';
+    }
+
+    public function recuperaContrasenia() {
+        $db = (new Database())->connect();
+        $usuarioModel = new Usuario($db);
+        
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_SPECIAL_CHARS);// Obtener datos del formulario
+        $password_generada = substr(md5(uniqid(rand(), true)), 0, 8);
+        $usuario_name_generado = 'user_' . substr(md5(uniqid(rand(), true)), 0, 5);
+        
+        // Buscar usuario por email/usuario_name (Usando el método del modelo)
+        $usuario_data = $usuarioModel->buscarPorEmail($email);
+        if ($usuario_data) {
+                $apellido = $usuario_data->apellido;
+                $usuarioModel->actualizarCredencialesPorEmail($email, $usuario_name_generado, $password_generada);
+                $this->enviarEmailRecuperacion($email,$apellido, $password_generada, $usuario_name_generado);
+
+                $_SESSION['mensaje'] = "Se ha enviado un usuario y contraseña aleatorios a su correo electrónico.";
+                header("Location: /home/login");
+        }else {
+            $_SESSION['error'] = "Usuario no encontrado o dado de baja. Contacte al administrador.";
+            header("Location: /auth/vistaRecuperaContrasenia");
+        }
+    }
+    private function enviarEmailRecuperacion($destinatario, $apellido, $password, $usuario_name) {
+    // Instanciar el servicio de correo
+        $mailer = new \App\Services\Mailer();
+
+        // Intentar enviar el email
+        if ($mailer->recuperarCredenciales($destinatario, $apellido, $usuario_name, $password)) {
+            // Éxito:
+            $_SESSION['mensaje'] = "Credenciales enviadas por email.";
+        } else {
+            // Fallo en el envío del email:
+            $_SESSION['warning'] = "Falló el envío del email con las credenciales.";
+        }
+    }
+
 }

@@ -126,6 +126,49 @@ class Usuario {
 
         return false;
     }
+
+    /**
+     * @param string $email 
+     * @param string $nuevoNombreUsuario 
+     * @param string $nuevaContrasenia 
+     * @return bool 
+     */
+    public function actualizarCredencialesPorEmail(string $email, string $nuevoNombreUsuario, string $nuevaContrasenia): bool {
+        
+        //Cifrar la nueva contraseña
+        $hashContrasenia = password_hash($nuevaContrasenia, PASSWORD_DEFAULT);
+        try {
+            $db = (new Database())->connect();
+        } catch (\PDOException $e) {
+            error_log("Error de conexión al actualizar credenciales: " . $e->getMessage());
+            return false;
+        }
+
+        $sql = "UPDATE usuario 
+                SET usuario_name = :nombreUsuario, password = :hashContrasenia 
+                WHERE email = :email";
+
+        try {
+            $stmt = $db->prepare($sql);
+            
+            //Ejecutar la declaración con los parámetros
+            $resultado = $stmt->execute([
+                ':nombreUsuario' => $nuevoNombreUsuario,
+                ':hashContrasenia' => $hashContrasenia,
+                ':email' => $email
+            ]);
+
+            //Verificar si se actualizó al menos una fila
+            return $resultado && $stmt->rowCount() > 0;
+
+        } catch (\PDOException $e) {
+            // Manejo de errores de la base de datos (ej. loguear el error)
+            error_log("Error al actualizar credenciales en DB: " . $e->getMessage());
+            return false;
+        }
+    }
+
+
     // DAR DE BAJA (Borrado Lógico)
     public function darBaja() {
         // 1. Definir la query: Solo actualizamos el estado y la fecha de fin
@@ -235,68 +278,68 @@ class Usuario {
      */
     // En app/models/Usuario.php
 
-public function listarProfesores() {
-    $query = "SELECT 
-                u.id, 
-                u.dni, 
-                u.nombre, 
-                u.apellido, 
-                u.calle,
-                u.telefono,
-                u.email, 
-                u.fecha_inicio,
-                l.descripcion as localidad_nombre, 
-                r.descripcion as rol_nombre,
-                -- Agregamos la columna 'carreras_nombre' usando GROUP_CONCAT
-                GROUP_CONCAT(c.descripcion SEPARATOR ', ') as carreras_nombre 
-              FROM " . $this->table . " u
-              INNER JOIN localidad l ON u.id_localidad = l.id
-              INNER JOIN rol r ON u.id_rol = r.id
-              -- LEFT JOIN para traer la información de las carreras
-              LEFT JOIN usuario_carrera uc ON u.id = uc.id_usuario
-              LEFT JOIN carrera c ON uc.id_carrera = c.id
-              WHERE u.id_rol = 'P' AND u.activo = 1
-              -- Agrupamos por usuario para que GROUP_CONCAT funcione correctamente
-              GROUP BY u.id 
-              ORDER BY u.apellido ASC";
+    public function listarProfesores() {
+        $query = "SELECT 
+                    u.id, 
+                    u.dni, 
+                    u.nombre, 
+                    u.apellido, 
+                    u.calle,
+                    u.telefono,
+                    u.email, 
+                    u.fecha_inicio,
+                    l.descripcion as localidad_nombre, 
+                    r.descripcion as rol_nombre,
+                    -- Agregamos la columna 'carreras_nombre' usando GROUP_CONCAT
+                    GROUP_CONCAT(c.descripcion SEPARATOR ', ') as carreras_nombre 
+                  FROM " . $this->table . " u
+                  INNER JOIN localidad l ON u.id_localidad = l.id
+                  INNER JOIN rol r ON u.id_rol = r.id
+                  -- LEFT JOIN para traer la información de las carreras
+                  LEFT JOIN usuario_carrera uc ON u.id = uc.id_usuario
+                  LEFT JOIN carrera c ON uc.id_carrera = c.id
+                  WHERE u.id_rol = 'P' AND u.activo = 1
+                  -- Agrupamos por usuario para que GROUP_CONCAT funcione correctamente
+                  GROUP BY u.id 
+                  ORDER BY u.apellido ASC";
 
-    $stmt = $this->conn->prepare($query);
-    $stmt->execute();
-    return $stmt;
-}
-    /**
-     * Lista todos los usuarios activos con rol 'A' (Alumno).
-     */
-    // En app/models/Usuario.php
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
+        /**
+         * Lista todos los usuarios activos con rol 'A' (Alumno).
+         */
+        // En app/models/Usuario.php
 
-public function listarAlumnos() {
-    $query = "SELECT 
-                u.id, 
-                u.dni, 
-                u.nombre, 
-                u.apellido, 
-                u.email, 
-                u.calle,
-                u.telefono,
-                l.descripcion as localidad_nombre, 
-                r.descripcion as rol_nombre,
-                -- Agregamos la columna 'carreras_nombre' usando GROUP_CONCAT
-                GROUP_CONCAT(c.descripcion SEPARATOR ', ') as carreras_nombre 
-              FROM " . $this->table . " u
-              INNER JOIN localidad l ON u.id_localidad = l.id
-              INNER JOIN rol r ON u.id_rol = r.id
-              -- LEFT JOIN para traer la información de las carreras
-              LEFT JOIN usuario_carrera uc ON u.id = uc.id_usuario
-              LEFT JOIN carrera c ON uc.id_carrera = c.id
-              WHERE u.id_rol = 'A' AND u.activo = 1
-              -- Agrupamos por usuario para que GROUP_CONCAT funcione correctamente
-              GROUP BY u.id 
-              ORDER BY u.apellido ASC";
+    public function listarAlumnos() {
+        $query = "SELECT 
+                    u.id, 
+                    u.dni, 
+                    u.nombre, 
+                    u.apellido, 
+                    u.email, 
+                    u.calle,
+                    u.telefono,
+                    l.descripcion as localidad_nombre, 
+                    r.descripcion as rol_nombre,
+                    -- Agregamos la columna 'carreras_nombre' usando GROUP_CONCAT
+                    GROUP_CONCAT(c.descripcion SEPARATOR ', ') as carreras_nombre 
+                  FROM " . $this->table . " u
+                  INNER JOIN localidad l ON u.id_localidad = l.id
+                  INNER JOIN rol r ON u.id_rol = r.id
+                  -- LEFT JOIN para traer la información de las carreras
+                  LEFT JOIN usuario_carrera uc ON u.id = uc.id_usuario
+                  LEFT JOIN carrera c ON uc.id_carrera = c.id
+                  WHERE u.id_rol = 'A' AND u.activo = 1
+                  -- Agrupamos por usuario para que GROUP_CONCAT funcione correctamente
+                  GROUP BY u.id 
+                  ORDER BY u.apellido ASC";
 
-    $stmt = $this->conn->prepare($query);
-    $stmt->execute();
-    return $stmt;
-}
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt;
+    }
     /**
      * Lee un único registro de usuario por ID.
      */
@@ -408,19 +451,19 @@ public function listarAlumnos() {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     /**
- * Elimina la relación específica de un usuario con una carrera.
- * Esto da de baja al alumno SÓLO de esa carrera.
- */
-public function eliminarRelacionUsuarioCarrera($id_usuario, $id_carrera) {
-    $query = "DELETE FROM usuario_carrera 
-              WHERE id_usuario = :id_usuario AND id_carrera = :id_carrera";
+    * Elimina la relación específica de un usuario con una carrera.
+    * Esto da de baja al alumno SÓLO de esa carrera.
+    */
+    public function eliminarRelacionUsuarioCarrera($id_usuario, $id_carrera) {
+        $query = "DELETE FROM usuario_carrera 
+                  WHERE id_usuario = :id_usuario AND id_carrera = :id_carrera";
 
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
-    $stmt->bindParam(':id_carrera', $id_carrera, PDO::PARAM_INT);
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id_usuario', $id_usuario, PDO::PARAM_INT);
+        $stmt->bindParam(':id_carrera', $id_carrera, PDO::PARAM_INT);
 
-    return $stmt->execute();
-}
+        return $stmt->execute();
+    }
 
 
 }

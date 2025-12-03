@@ -23,6 +23,8 @@ class Router {
         $this->add('auth/crearUsuario', 'AuthController', 'crearUsuario');
         $this->add('alumno/vistaCrearUsuarioAlumno', 'AlumnoController', 'vistaCrearUsuarioAlumno');
         $this->add('alumno/crearUsuarioAlumno', 'AlumnoController', 'crearUsuarioAlumno');
+        $this->add('auth/vistaRecuperaContrasenia', 'AuthController', 'vistaRecuperaContrasenia');
+        $this->add('auth/recuperaContrasenia', 'AuthController', 'recuperaContrasenia');
 
         // === RUTAS PROTEGIDAS POR ROL ===
         

@@ -62,4 +62,37 @@ class Mailer {
             return false;
         }
     }
+    /**
+     * Envía las credenciales al nuevo profesor.
+     */
+    public function recuperarCredenciales($destinatarioEmail, $nombre, $usuario, $contrasena) {
+        try {
+            $this->mail->addAddress($destinatarioEmail, $nombre);
+            
+            // Contenido
+            $this->mail->isHTML(true); 
+            $this->mail->Subject = '¡Bienvenido/a! Tus Credenciales de Acceso';
+            
+            // Cuerpo del Email (Puedes usar una plantilla HTML más elaborada)
+            $cuerpo = "
+                <h1>Hola {$nombre},</h1>
+                <p>Has solicitado recuperar tus credenciales de acceso en nuestro sistema.</p>
+                <p>Usa las siguientes credenciales para iniciar sesión:</p>
+                <ul>
+                    <li><strong>Usuario:</strong> {$usuario}</li>
+                    <li><strong>Contraseña:</strong> {$contrasena}</li>
+                </ul>
+                <p>Por favor, cambia tu contraseña después del primer inicio de sesión.</p>
+                <p>Saludos,<br>Instituto 93</p>
+            ";
+            
+            $this->mail->Body = $cuerpo;
+            $this->mail->send();
+            return true;
+        } catch (Exception $e) {
+            // Loguea el error o muestra un mensaje
+            error_log("Error al enviar el email: {$this->mail->ErrorInfo}");
+            return false;
+        }
+    }
 }

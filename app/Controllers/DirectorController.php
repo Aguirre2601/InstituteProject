@@ -73,19 +73,19 @@ class DirectorController {
         $usuarioModel = new Usuario($db);
         
 
-        // 1. Generar Contraseña, Usuario Name, y Fechas
+        //Generar Contraseña, Usuario Name, y Fechas
         $password_generada = substr(md5(uniqid(rand(), true)), 0, 8);
         $usuario_name_generado = 'profe_' . substr(md5(uniqid(rand(), true)), 0, 5);
         $fecha_actual = date("Y-m-d");
 
-        // 2. Capturar las Carreras Seleccionadas
-        // FILTER_REQUIRE_ARRAY asegura que recibamos un array o null si no se seleccionó nada
+        //Capturar las Carreras Seleccionadas
+        //FILTER_REQUIRE_ARRAY asegura que recibamos un array o null si no se seleccionó nada
         $carreras_seleccionadas = filter_input(INPUT_POST, 'carreras', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
         if ($carreras_seleccionadas === null) {
             $carreras_seleccionadas = [];
         }
 
-        // 3. Asignar propiedades al Modelo (usando tu código)
+        //Asignar datos personales al Modelo
         $usuarioModel->dni = filter_input(INPUT_POST, 'dni', FILTER_SANITIZE_NUMBER_INT);
         $usuarioModel->nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_SPECIAL_CHARS);
         $usuarioModel->apellido = filter_input(INPUT_POST, 'apellido', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -97,15 +97,15 @@ class DirectorController {
         $usuarioModel->password = $password_generada;
         $usuarioModel->usuario_name = $usuario_name_generado;
         $usuarioModel->id_rol = 'P'; // Rol fijo para Profesor
-        // 4. Crear en la base de datos
+        //Crear en la base de datos
         if ($usuarioModel->crear()) {
 
             $nuevo_profesor_id = $db->lastInsertId(); // OBTENER EL ID DEL PROFESOR CREADO
         
-            // 5. Asignar Carreras
+            //Asignar Carreras
             if ($usuarioModel->asignarCarreras($nuevo_profesor_id, $carreras_seleccionadas)) {
 
-                // 6. Enviar email (Notificación)
+                //Enviar email (Notificación)
                 $this->enviarEmailProfesor($usuarioModel->email, $usuarioModel->apellido, $password_generada, $usuario_name_generado);
 
                 $_SESSION['mensaje'] = "Profesor creado y asignado a carreras con éxito. Se envió un email.";
@@ -135,7 +135,6 @@ class DirectorController {
         } else {
             // Fallo en el envío del email:
             $_SESSION['warning'] = "Profesor creado, pero falló el envío del email con las credenciales.";
-            // Es CRÍTICO guardar el mensaje de error de PHPMailer en el log para debug.
         }
     }
 
