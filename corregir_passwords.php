@@ -22,10 +22,10 @@ if (mysqli_num_rows($resultado) > 0) {
         $id_usuario = $fila['id'];
         $password_plano = $fila['password']; // Asumimos que aquí está el texto plano
         
-        // 2. Generar el hash seguro
+        // Generar el hash seguro
         $hash_seguro = password_hash($password_plano, PASSWORD_DEFAULT);
 
-        // 3. Actualizar el registro en la base de datos con el hash
+        // Actualizar el registro en la base de datos con el hash
         mysqli_stmt_bind_param($stmt, "si", $hash_seguro, $id_usuario); // 's' para string (hash), 'i' para integer (id)
         mysqli_stmt_execute($stmt);
 

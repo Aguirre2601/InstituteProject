@@ -30,10 +30,6 @@ Diseño
     • Agregar iconos a los botones o reemplazarlos por iconos.
 
 --------------------
-para sumar puntos 
-login 
-Agregar el envio de email
-ponerle onda al diseño
 
 
 ## Para hacer su Dominio virtual

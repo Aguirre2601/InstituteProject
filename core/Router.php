@@ -26,8 +26,7 @@ class Router {
         $this->add('auth/vistaRecuperaContrasenia', 'AuthController', 'vistaRecuperaContrasenia');
         $this->add('auth/recuperaContrasenia', 'AuthController', 'recuperaContrasenia');
 
-        // === RUTAS PROTEGIDAS POR ROL ===
-        
+        // === RUTAS PROTEGIDAS POR ROL ==
         // Director
         $this->add('director/dashboard', 'DirectorController', 'dashboard', 'CheckRoleMiddleware', 'D');
         $this->add('director/darDeBajaProfesor/:id', 'DirectorController', 'darDeBajaProfesor', 'CheckRoleMiddleware', 'D');
