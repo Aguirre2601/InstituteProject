@@ -19,14 +19,14 @@ class Mailer {
         $this->mail->SMTPAuth   = true;
         
         //  Reemplaza con tus credenciales SMTP
-        $this->mail->Username   = 'marielaaguirre610@gmail.com'; 
-        $this->mail->Password   = 'lpys cnda vpww zwcr'; // Usa una contraseña de aplicación si es Gmail
+        $this->mail->Username   = 'TuCorre@correo.com'; 
+        $this->mail->Password   = 'tucontraseña'; // Usa una contraseña de aplicación si es Gmail
         
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Usar TLS
         $this->mail->Port       = 587; // Puerto para TLS
         
         // Remitente por defecto
-        $this->mail->setFrom('no-reply@instituto.com', 'ISFDyT N° 93');
+        $this->mail->setFrom('no-reply@instituto.com', 'ISFDyT');
     }
 
     /**
